@@ -27,7 +27,7 @@ any' f = foldl (\acc x -> if f x then True else acc) False
 type Mat a = [[a]]
 
 triSup :: (Num a,Eq a) => Mat a -> Bool
-triSup matriz = all (\n -> all (\x -> (matriz !! n) !! x == 0) [0..(n - 1)]) [1..(length matriz - 1)]
+triSup matriz = all (\n -> all ((==) 0 . (!!) (matriz !! n)) [0..(n - 1)]) [1..(length matriz - 1)]
 
 -- Exercicio 5
 

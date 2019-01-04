@@ -44,7 +44,10 @@ zipWithBT f (Node e l r) (Node a b c) = Node (f e a) (zipWithBT f l b) (zipWithB
 zipWithBT _ _ _ = Empty
 
 unzipBT :: BTree (a,b,c) -> (BTree a,BTree b,BTree c)
-unzipBT (Node (a,b,c) l r) = undefined
+unzipBT Empty = (Empty, Empty, Empty)
+unzipBT (Node (a,b,c) l r) = (Node a unzipL1 unzipR1,Node b unzipL2 unzipR2,Node c unzipL3 unzipR3)
+    where (unzipL1,unzipL2,unzipL3) = unzipBT l
+          (unzipR1,unzipR2,unzipR3) = unzipBT r
 
 -- Exercicio 2
 
