@@ -27,7 +27,7 @@ data BTree a = Empty | Node a (BTree a) (BTree a) deriving Show
 prune :: Int -> BTree a -> BTree a
 prune _ Empty = Empty
 prune 0 _ = Empty
-prune n (Node x l r) = Node x (prune n l) (prune n r)
+prune n (Node x l r) = Node x (prune (n - 1) l) (prune (n - 1) r)
 
 semMinimo :: (Ord a) => BTree a -> BTree a
 semMinimo Empty = Empty
