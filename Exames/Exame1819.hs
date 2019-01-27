@@ -61,7 +61,7 @@ criaRelPint n = do
     linha <- getLine
     let (num1,num2) = span (/= ' ') linha
     resto <- criaRelPint (n - 1)
-    return ((read num1,read num2):resto)
+    return $ (read num1,read num2):resto
 
 convFP :: (Eq a) => RelF a -> RelP a
 convFP (l,f) = convLP $ map (\x -> (x,f x)) l
