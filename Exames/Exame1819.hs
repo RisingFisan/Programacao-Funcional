@@ -58,10 +58,8 @@ criaRelPint :: Int -> IO (RelP Int)
 criaRelPint 0 = return []
 criaRelPint n = do
     putStr "Introduz dois numeros (separados por um espaco): "
-    linha <- getLine
-    let (num1,num2) = span (/= ' ') linha
-    resto <- criaRelPint (n - 1)
-    return $ (read num1,read num2) : resto
+    (num1,num2) <- fmap (span (/= ' ')) getLine
+    fmap ((read num1,read num2) :) $ criaRelPint (n - 1)
 
 convFP :: (Eq a) => RelF a -> RelP a
 convFP (l,f) = convLP $ map (\x -> (x,f x)) l
