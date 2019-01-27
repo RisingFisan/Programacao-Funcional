@@ -59,93 +59,23 @@ instance Show a => Show (Exp a) where
     show (Mais a b) = "(" ++ show a ++ " + " ++ show b ++ ")"
     show (Menos a b) = "(" ++ show a ++ " - " ++ show b ++ ")"
     show (Mult a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
+    
+valorDe :: (Num a) => Exp a -> a
+valorDe (Const a) = a
+valorDe (Simetrico a) = - (valorDe a)
+valorDe (Mais a b) = valorDe a + valorDe b
+valorDe (Menos a b) = valorDe a - valorDe b
+valorDe (Mult a b) = valorDe a * valorDe b
 
 instance (Num a,Eq a) => Eq (Exp a) where
-    Const a == Const b = a == b
-    Const a == Simetrico b = Const (-a) == b
-    Const a == Mais b c = Const a == b + c
-    Const a == Menos b c = Const a == b - c
-    Const a == Mult b c = Const a == b * c
-    --
-    Simetrico a == Simetrico b = (-a) == (-b)
-    Simetrico a == Mais b c = (- a) == b + c
-    Simetrico a == Menos b c = (- a) == b - c
-    Simetrico a == Mult b c = (- a) == b * c
-    --
-    Mais a b == Mais c d = a + b == c + d
-    Mais a b == Menos c d = a + b == c - d
-    Mais a b == Mult c d = a + b == c * d
-    --
-    Menos a b == Menos c d = a - b == c - d
-    Menos a b == Mult c d = a - b == c * d
-    --
-    Mult a b == Mult c d = a * b == c * d
-    --
-    a == b = b == a
+    x == y = valorDe x == (valorDe y)
 
 instance (Num a, Eq a) => Num (Exp a) where
-    Const a + Const b = Const (a + b)
-    Const a + Simetrico b = Const a - b
-    Const a + Mais b c = Const a + b + c
-    Const a + Menos b c = Const a + (b - c)
-    Const a + Mult b c = Const a + (b * c)
+    x + y = Const (valorDe x + valorDe y)
     --
-    Simetrico a + Simetrico b = (- a) - b
-    Simetrico a + Mais b c = (- a) + b + c
-    Simetrico a + Menos b c = (- a) + (b - c)
-    Simetrico a + Mult b c = (- a) + (b * c) 
+    x - y = Const (valorDe x - valorDe y)
     --
-    Mais a b + Mais c d = a + b + c + d
-    Mais a b + Menos c d = a + b + (c - d)
-    Mais a b + Mult c d = a + b + (c * d)
-    --
-    Menos a b + Menos c d = (a - b) + (c - d)
-    Menos a b + Mult c d = (a - b) + (c * d)
-    --
-    Mult a b + Mult c d = a * b + c * d
-    a + b = b + a
-    --
-    Const a - Const b = Const (a - b)
-    Const a - Simetrico b = Const a + b
-    Const a - Mais c b = Const a - (c + b)
-    Const a - Menos c b = Const a - (c - b)
-    Const a - Mult c b = Const a - (c * b)
-    --
-    Simetrico a - Simetrico b = (- a) + b
-    Simetrico a - Mais c b = (- a) - (c + b)
-    Simetrico a - Menos c b = (- a) - (c - b)
-    Simetrico a - Mult c b = (- a) - (c * b)
-    --
-    Mais a b - Mais c d = (a + b) - (c + d)
-    Mais a b - Menos c d = (a + b) - (c - d)
-    Mais a b - Mult c d = (a + b) - (c * d)
-    --
-    Menos a b - Menos c d = (a - b) - (c - d)
-    Menos a b - Mult c d = (a - b) - (c * d)
-    --
-    Mult a b - Mult c d = (a * b) - (c * d)
-    a - b = (- b) + a
-    --
-    Const a * Const b = Const (a * b)
-    Const a * Simetrico b = Const a * (- b)
-    Const a * Mais c b = Const a * (c + b)
-    Const a * Menos c b = Const a * (c - b)
-    Const a * Mult c b = Const a * (c * b)
-    --
-    Simetrico a * Simetrico b = (-a) * (-b)
-    Simetrico a * Mais b c = (-a) * (b + c)
-    Simetrico a * Menos b c = (-a) * (b - c)
-    Simetrico a * Mult b c = (-a) * (b * c)
-    --
-    Mais a b * Mais c d = (a + b) * (c + d)
-    Mais a b * Menos c d = (a + b) * (c - d)
-    Mais a b * Mult c d = (a + b) * (c * d)
-    --
-    Menos a b * Menos c d = (a - b) * (c - d)
-    Menos a b * Mult c d = (a - b) * (c * d)
-    --
-    Mult a b * Mult c d = (a * b) * (c * d)
-    a * b = b * a
+    x * y = Const (valorDe x * valorDe y)
     --
     negate (Const a) = Const (- a)
     negate (Simetrico a) = a
@@ -163,7 +93,7 @@ instance (Num a, Eq a) => Num (Exp a) where
     signum (Mais a b) = Const (if abs (a + b) == a + b then if a + b == 0 then 0 else 1 else (-1))
     signum (Menos a b) = Const (if abs (a - b) == a - b then if a - b == 0 then 0 else 1 else (-1))
     signum (Mult a b) = Const (if abs (a * b) == a * b then if a * b == 0 then 0 else 1 else (-1))
-    
+
 -- Exercicio 3
 
 data Movimento = Credito Float | Debito Float
