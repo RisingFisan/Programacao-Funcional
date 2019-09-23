@@ -1,286 +1,175 @@
-module CinquentaQuestoes where
+module FiftyQ where
 
--- * Funções recursivas
+import Data.List
 
--- ** 1) EnumFromTo
--- | Cria uma lista com todos os valores inteiros entre o mínimo e o máximo dados.
+-- 1
 
-enumFromTo' :: Int -- ^ O valor mínimo da lista
-            -> Int -- ^ O valor máximo da lista
-            -> [Int] -- ^ A lista resultante
-enumFromTo' min max 
-    | min < max = min:enumFromTo' (min + 1) max
-    | min == max = [max]
+enumFromTo' :: Int -> Int -> [Int]
+enumFromTo' start end 
+    | start == end = [end]
+    | otherwise = start:enumFromTo (start+1) end
 
--- myEnumFromTo min max = reverse $ foldl (flip (:)) [] [min..max]
--- myEnumFromTo' min max = foldl (\acc x -> acc ++ [x]) [] [min..max]
+-- 2
 
--- ** 2) EnumFromThenTo
--- | Cria uma lista com os valores inteiros entre o mínimo e o máximo dados, com "passos" iguais à diferença entre o mínimo e o segundo valor dado.
---  
--- __Exemplo:__
---  
--- >>> enumFromThenTo' 2 4 10
--- [2,4,6,8,10]
-enumFromThenTo' :: Int -- ^ O valor mínimo da lista 
-                -> Int -- ^ O segundo valor da lista
-                -> Int -- ^ O valor máximo da lista
-                -> [Int] -- ^ A lista resultante
-enumFromThenTo' min sec max 
-    | min < max = min:enumFromThenTo' sec (sec + abs (min - sec)) max
-    | min == max = [max]
-    | min > max = []
+enumFromThenTo' :: Int -> Int -> Int -> [Int]
+enumFromThenTo' start next end 
+    | start > end = []
+    | otherwise = start:enumFromThenTo' next (2 * next - start) end
 
--- ** 3) Concatenar (+++)
--- | Dadas duas listas, junta-as numa só, pela ordem em que foram fornecidas e sem remover elementos de nenhuma.
---
--- __Exemplo:__
---
--- >>> [1,2,3] +++ [4,5,6]
--- [1,2,3,4,5,6]
+-- 3
 
-(+++) :: [a] -- ^ Primeira lista 
-      -> [a] -- ^ Segunda lista
-      -> [a] -- ^ Lista resultante da união das duas listas anteriores
-(+++) [] l = l
-(+++) (a:as) b = a:(+++) as b
+concat'' :: [a] -> [a] -> [a]
+concat'' [] l = l
+concat'' (h:t) l = h:concat'' t l
 
-pp l1 l2 = foldr (:) l2 l1
-
-pp' :: [a] -> [a] -> [a]
-pp' = flip $ foldr (:)
-
--- ** 4) Encontrar Na Lista (!!!)
--- | Encontra o elemento de uma dada lista a partir do índice desse elemento.
---
--- __Exemplo:__
---
--- >>> [1,2,3,4,5,6] !!! 3
 -- 4
 
-(!!!) :: [a] -- ^ Lista cujo elemento se pretende encontrar
-      -> Int -- ^ Índice do dito elemento
-      -> a -- ^ Elemento da lista com o índice fornecido
-(!!!) (l:ls) 0 = l
-(!!!) (l:ls) n = (!!!) ls (n - 1)
+getFromIndex :: [a] -> Int -> a
+getFromIndex (h:t) n
+    | n == 0 = h
+    | otherwise = getFromIndex t (n - 1)
 
-(!!!!) l n = head (foldl (\acc _ -> tail acc) l [1..n])
+-- 5
 
--- ** 5) Reverse
--- | Inverte a ordem dos elementos de uma lista dada.
---
--- __Exemplo:__
---
--- >>> reverse [1,2,3,4,5]
--- [5,4,3,2,1]
+reverse' :: [a] -> [a]
+reverse' [] = []
+reverse' (h:t) = reverse' t ++ [h]
 
-reverse' :: [a] -- ^ Lista original
-         -> [a] -- ^ lista revertida
-reverse' [x] = [x]
-reverse' (l:ls) = reverse' ls ++ [l]
+-- 6
 
-myreverse :: [a] -> [a]
-myreverse = foldl (flip (:)) []
-
--- ** 6) Take
--- | Devolve uma lista com os primeiros n elementos da lista fornecida.
---
--- __Exemplo:__
---
--- >>> take' 4 "abcdefgh"
--- "abcd"
-
-take' :: Int -- ^ nº de elementos a retirar da lista
-      -> [a] -- ^ Lista cujos elementos vão ser retirados
-      -> [a] -- ^ Lista com os elementos retirados da primeira lista
+take' :: Int -> [a] -> [a]
 take' 0 _ = []
-take' n [] = []
-take' n (l:ls) = l:take' (n - 1) ls
-
-mytake n = foldl (\acc x -> if length acc < n then acc ++ [x] else acc) [] 
+take' _ [] = []
+take' n (h:t) = h : take' (n - 1) t
 
 -- 7
 
-drop' ::  Int -> [a] -> [a]
+drop' :: Int -> [a] -> [a]
 drop' 0 l = l
-drop' n [] = []
-drop' n (l:ls) = drop' (n-1) ls
-
-mydrop n l = foldr (\x acc -> if length acc < length l - n then x:acc else acc) [] l
+drop' _ [] = []
+drop' n (h:t) = drop' (n - 1) t
 
 -- 8
 
-zip' ::  [a] -> [b] -> [(a,b)]
+zip' :: [a] -> [b] -> [(a,b)]
 zip' [] _ = []
 zip' _ [] = []
-zip' (la:las) (lb:lbs) = (la,lb):zip' las lbs 
+zip' (h:t) (h':t') = (h,h'):zip' t t'
 
 -- 9
 
-elem' ::  Eq a => a -> [a] -> Bool
+elem' :: Eq a => a -> [a] -> Bool
 elem' _ [] = False
--- elem' x [a] = x == a
-elem' x (l:ls) = x == l || elem' x ls
-
-myelem :: Eq a => a -> [a] -> Bool
-myelem a = foldr ((||) . (==) a) False
+elem' x (h:t) = x == h || elem' x t
 
 -- 10
 
-replicate' ::  Int -> a -> [a]
+replicate' :: Int -> a -> [a]
 replicate' 0 _ = []
 replicate' n x = x:replicate' (n - 1) x
 
-myreplicate n x = foldr (\_ -> (:) x) [] [1..n]
-
 -- 11
 
-intersperse' ::  a -> [a] -> [a]
-intersperse' _ [x] = [x]
-intersperse' x (l:ls) = l:x:intersperse' x ls
-
-myintersperse :: a -> [a] -> [a]
-myintersperse x = foldl (\acc y -> if length acc == 0 then [y] else acc ++ [x,y]) []
+intersperse' :: a -> [a] -> [a]
+intersperse' _ [] = []
+intersperse' _ [h] = [h]
+intersperse' x (h:t) = h:x:intersperse' x t 
 
 -- 12
 
 group' :: Eq a => [a] -> [[a]]
 group' [] = []
-group' (x:l) = (x:equalToX):group' restOfList
-    where (equalToX,restOfList) = myspan (igualA x) l
-          myspan :: (a -> Bool) -> [a] -> ([a],[a])
-          myspan func l = (l1 func l,l2 func l)
-          l1 _ [] = []
-          l1 func (p:ps) = if func p then p:l1 func ps else []
-          l2 _ [] = []
-          l2 func (p:ps) = if func p then l2 func ps else (p:ps)
-          igualA a b = a == b
-
-mygroup :: Eq a => [a] -> [[a]]
-mygroup [] = []
-mygroup (x:xs) = (x:aux xs):aux2 xs
-    where aux (y:ys) = if y == x then y:aux ys else []
-          aux [] = []
-          aux2 [] = []
-          aux2 (z:zs) = if z == x then aux2 zs else mygroup (z:zs)
-
-group'' :: Eq a => [a] -> [[a]]
-group'' [] = []
-group'' l@(x:_) = equalToX : group'' restOfList
-    where (equalToX,restOfList) = span (== x) l 
+group' (h:t) = (h:takeWhile (== h) t) : group' (dropWhile (== h) t)
 
 -- 13
 
 concat' :: [[a]] -> [a]
 concat' [] = []
-concat' (x:xs) = x ++ concat' xs
+concat' (h:t) = h ++ concat' t
 
 -- 14
 
-inits :: [a] -> [[a]]
-inits [x] = [[],[x]]
-inits l = inits (init l) ++ [l]
-
 inits' :: [a] -> [[a]]
 inits' [] = [[]]
-inits' l = myjoin (inits (myinit l)) [l]
-    where myinit [l] = []
-          myinit (l:ls) = l:myinit ls
-          myjoin [] b = b
-          myjoin (a:as) b = a:myjoin as b
-
-myinits :: [a] -> [[a]]
-myinits [x] = [[],[x]]
-myinits (x:xs) = [] : aux x (myinits xs)
-    where aux a (h:t) = (a:h):aux a t
-          aux a [] = []
+inits' l = inits' (init l) ++ [l] 
 
 -- 15
 
-tails :: [a] -> [[a]]
-tails [x] = [[x],[]]
-tails l = l:tails (tail l)
-
-mytails :: [a] -> [[a]]
-mytails [] = [[]]
-mytails l = l:tails (mytail l)
-    where mytail (l:ls) = ls
+tails' :: [a] -> [[a]]
+tails' [] = [[]]
+tails' l = l : tails' (tail l)
 
 -- 16
 
-isPrefixOf ::  Eq a => [a] -> [a] -> Bool
-isPrefixOf [] _ = True
-isPrefixOf _ [] = False
-isPrefixOf (l1:l1s) (l2:l2s) = if l1 == l2 then isPrefixOf l1s l2s else False
+isPrefixOf' :: Eq a => [a] -> [a] -> Bool
+isPrefixOf' [] _ = True
+isPrefixOf' _ [] = False
+isPrefixOf' (h:t) (h':t') = h == h' && isPrefixOf' t t'
 
 -- 17
 
-isSuffixOf ::  Eq a => [a] -> [a] -> Bool
-isSuffixOf [] _ = True
--- isSuffixOf [x] l = x == last l
-isSuffixOf _ [] = False
-isSuffixOf (x:xs) (y:ys) = if x == y then isSuffixOf xs ys else isSuffixOf (x:xs) ys
+isSuffixOf' :: Eq a => [a] -> [a] -> Bool
+isSuffixOf' [] _ = True
+isSuffixOf' _ [] = False
+isSuffixOf' l l'@(_:t) = l == l' || isSuffixOf' l t
 
 -- 18
 
-isSubsequenceOf ::  Eq a => [a] -> [a] -> Bool
-isSubsequenceOf [] _ = True
-isSubsequenceOf _ [] = False
-isSubsequenceOf (x:xs) (y:ys) = if x == y then isSubsequenceOf xs ys else isSubsequenceOf (x:xs) ys
+isSubsequenceOf' :: Eq a => [a] -> [a] -> Bool
+isSubsequenceOf' [] _ = True
+isSubsequenceOf' _ [] = False
+isSubsequenceOf' (h:t) (h':t') = h == h' && isSubsequenceOf' t t' || isSubsequenceOf' (h:t) t'
 
 -- 19
 
-elemIndices :: Eq a => a -> [a] -> [Int]
-elemIndices x l = [n | n <- [0..(length l - 1)], x == (l !! n)]
--- OU:
-elemIndices' x l = filter (\n -> x == (l !! n)) [0..(length l - 1)]
--- OU:
-elemIndices'' x l = foldl (\acc n -> if x == (l !! n) then acc ++ [n] else acc) [] [0..(length l - 1)]
--- OU:
-elemIndices2 _ [] = []
-elemIndices2 x l = elemIndComN 0 x l
-    where elemIndComN _ _ [] = []
-          elemIndComN n x (l:ls) = if x == l then n:elemIndComN (n+1) x ls else elemIndComN (n+1) x ls
+elemIndices' :: Eq a => a -> [a] -> [Int]
+elemIndices' _ [] = []
+elemIndices' x (h:t) 
+    | x == h = 0 : map (+1) (elemIndices' x t)
+    | otherwise = map (+1) (elemIndices' x t)
 
 -- 20
 
-nub ::  Eq a => [a] -> [a]
-nub [] = []
-nub (x:l) = if elem x l then nub l else x:nub l
+nub' :: Eq a => [a] -> [a]
+nub' [] = []
+nub' (h:t) = h : filter (/= h) (nub' t)
+
+-- OU
+
+nub2 :: Eq a => [a] -> [a]
+nub2 [] = []
+nub2 (h:t) = if elem h t then nub2 t else h:nub2 t
 
 -- 21
 
-delete ::  Eq a => a -> [a] -> [a]
-delete _ [] = []
-delete x (l:ls) 
-    | x == l = ls
-    | elem x ls = l:delete x ls
-    | otherwise = (l:ls)
-
-mydelete :: Eq a => a -> [a] -> [a]
-mydelete _ [] = []
-mydelete x (y:ys) = if x == y then ys else y : mydelete x ys
+delete' :: Eq a => a -> [a] -> [a]
+delete' _ [] = []
+delete' x (h:t)
+    | x == h = t
+    | otherwise = h:delete' x t
 
 -- 22
 
-(\\) :: Eq a => [a] -> [a] -> [a]
-(\\) l [] = l
-(\\) [] _ = []
-(\\) l (y:ys) = (\\) (delete y l) ys
+remove :: Eq a => [a] -> [a] -> [a]
+remove l [] = l
+remove [] _ = []
+remove l (h:t) = remove (delete' h l) t
 
 -- 23
 
-union ::  Eq a => [a] -> [a] -> [a]
-union [] l = l
-union l [] = l
-union l (y:ys) = if elem y l then union l ys else union (l ++ [y]) ys
+union' :: Eq a => [a] -> [a] -> [a]
+union' l [] = l
+union' l (h:t)
+    | h `elem` l = union' l t
+    | otherwise = union' (l ++ [h]) t
 
 -- 24
 
-intersect ::  Eq a => [a] -> [a] -> [a]
-intersect _ [] = []
-intersect [] _ = []
-intersect (x:xs) l = if elem x l then x:intersect xs l else intersect xs l
+intersect' :: Eq a => [a] -> [a] -> [a]
+intersect' [] _ = []
+intersect' (h:t) l
+    | h `elem` l = h:intersect' t l
+    | otherwise = intersect' t l
 
 -- 25
 
