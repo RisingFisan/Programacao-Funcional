@@ -173,29 +173,39 @@ intersect' (h:t) l
 
 -- 25
 
-insert ::  Ord a => a -> [a] -> [a]
-insert x [] = [x]
-insert x (l:ls) = if x <= l then x:l:ls else l:insert x ls
+insert' :: Ord a => a -> [a] -> [a]
+insert' x [] = [x]
+insert' x (h:t)
+    | x > h = h:insert' x t
+    | otherwise = x:h:t
 
 -- 26
 
 unwords' :: [String] -> String
 unwords' [] = ""
-unwords' [x] = x
-unwords' (word:words) = word ++ " " ++ unwords' words
+unwords' (h:t) = h ++ (if t == [] then "" else " ") ++ unwords' t
 
 -- 27
 
 unlines' :: [String] -> String
 unlines' [] = ""
-unlines' (word:words) = word ++ "\n" ++ unlines' words
+unlines' (h:t) = h ++ "\n" ++ unlines' t
 
 -- 28
 
 pMaior :: Ord a => [a] -> Int
-pMaior (h:t) = aux 0 0 h t
+pMaior [_] = 0 -- [_] é uma lista com apenas um elemento, o underscore apenas substitui o nome de uma variável
+pMaior (h:t)
+    | h > (t !! x) = 0
+    | otherwise = 1 + x
+    where x = pMaior t
+
+-- OU (a segunda versão usa uma função auxiliar, mas é mais intuitiva)
+
+pMaior' :: Ord a => [a] -> Int
+pMaior' (h:t) = aux 0 0 h t
     where aux _ nm _ [] = nm
-          aux n nm x (l:ls) = if l > x 
+          aux n nm x (l:ls) = if l > x -- n é o índice "atual", nm é o índice do valor máximo da lista
                               then aux (n + 1) (n + 1) l ls 
                               else aux (n + 1) nm x ls
 
@@ -203,47 +213,46 @@ pMaior (h:t) = aux 0 0 h t
 
 temRepetidos ::  Eq a => [a] -> Bool
 temRepetidos [] = False
-temRepetidos (l:ls) = if elem l ls then True else temRepetidos ls
+temRepetidos (h:t) = h `elem` t || temRepetidos t
 
 -- 30
 
 algarismos :: [Char] -> [Char]
 algarismos [] = []
-algarismos l = filter (`elem` ['0'..'9']) l
-
-algarismos' [] = []
-algarismos' (h:t) | elem h ['0'..'9'] = h:algarismos' t
-                  | otherwise = algarismos' t
+algarismos (h:t)
+    | h `elem` ['0'..'9'] = h:algarismos t
+    | otherwise = algarismos t
 
 -- 31
 
 posImpares ::  [a] -> [a]
-posImpares l = aux 0 l
-    where aux _ [] = []
-          aux n (l:ls) = if odd n then l:aux (n + 1) ls else aux (n + 1) ls
+posImpares [] = []
+posImpares [_] = []
+posImpares (h:s:t) = s:posImpares t
 
 -- 32
 
 posPares :: [a] -> [a]
-posPares l = aux 0 l
-    where aux _ [] = []
-          aux n (l:ls) = if even n then l:aux (n + 1) ls else aux (n + 1) ls
+posPares [] = []
+posPares [x] = [x]
+posPares (h:s:t) = h:posPares t
 
 -- 33
 
 isSorted :: Ord a => [a] -> Bool
+isSorted [] = True
 isSorted [x] = True
-isSorted (x:y:xs) = y >= x && isSorted (y:xs)
+isSorted (h:s:t) = s >= h && isSorted (s:t)
 
 -- 34
 
-iSort :: Ord a => [a] -> [a] -- QuickSort
+-- Função insert' definida na questão 25
+
+iSort :: Ord a => [a] -> [a]
 iSort [] = []
-iSort (l:ls) = iSort (maisPequenos ls) ++ [l] ++ iSort (maiores ls)
-    where maisPequenos [] = []
-          maisPequenos (x:xs) = if x <= l then x:maisPequenos xs else maisPequenos xs 
-          maiores [] = []
-          maiores (x:xs) = if x > l then x:maiores xs else maiores xs
+iSort (h:t) = insert h (iSort t)
+
+-- Outras formas de ordenar listas:
 
 quickSort :: Ord a => [a] -> [a]
 quickSort [] = []
@@ -251,10 +260,23 @@ quickSort (l:ls) = maisPequenos ++ [l] ++ maiores
     where maisPequenos = quickSort $ filter (<=l) ls
           maiores = quickSort $ filter (>l) ls
 
+mergeSort :: Ord a => [a] -> [a]
+mergeSort [] = []
+mergeSort [x] = [x]
+mergeSort l = merge (mergeSort metade1) (mergeSort metade2)
+    where (metade1,metade2) = splitAt (div (length l) 2) l
+          merge :: Ord a => [a] -> [a] -> [a]
+          merge [] l = l
+          merge l [] = l
+          merge (a:b) (c:d) = if a < c then a:merge b (c:d) else c:merge (a:b) d
+
 -- 35
 
 menor :: String -> String -> Bool
-menor a b = a < b
+menor _ "" = False
+menor "" _ = True
+menor (h:t) (h':t') = h < h' || menor t t'
+
 
 -- 36
 
@@ -275,6 +297,12 @@ converteMSet [] = []
 converteMSet ((x,1):xs) = x:converteMSet xs
 converteMSet ((x,n):xs) = x:converteMSet ((x,n-1):xs)
 
+-- OU
+
+converteMSet' :: [(a,Int)] -> [a]
+converteMSet' [] = []
+converteMSet' ((x,n):xs) = replicate n x ++ converteMSet xs
+
 -- 39
 
 insereMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]
@@ -291,7 +319,13 @@ removeMSet x ((a,n):xs) = if x == a then xs else (a,n):removeMSet x xs
 
 constroiMSet :: Ord a => [a] -> [(a,Int)]
 constroiMSet [] = []
-constroiMSet (l:ls) = (l,1 + length (takeWhile (==l) ls)):constroiMSet (dropWhile (==l) ls)
+constroiMSet (l:ls) = insereMSet l (constroiMSet ls)
+
+-- OU
+
+constroiMSet' :: Ord a => [a] -> [(a,Int)]
+constroiMSet' [] = []
+constroiMSet' (l:ls) = (l,1 + length (filter (==l) ls)):constroiMSet' (filter (/=l) ls)
 
 -- 42
 
@@ -304,28 +338,28 @@ partitionEithers l = (partitionLefts l, partitionRights l)
           partitionRights ((Left x):ls) = partitionRights ls
           partitionRights ((Right x):ls) = x:partitionRights ls
 
-myPE :: [Either a b] -> ([a],[b])
-myPE [] = ([],[])
-myPE ((Left a):t) = (a:as,bs)
-    where (as,bs) = myPE t
-myPE ((Right b):t) = (as,b:bs)
-    where (as,bs) = myPE t  
+partitionEithers' :: [Either a b] -> ([a],[b])
+partitionEithers' [] = ([],[])
+partitionEithers' ((Left a):t) = (a:as,bs)
+    where (as,bs) = partitionEithers' t
+partitionEithers' ((Right b):t) = (as,b:bs)
+    where (as,bs) = partitionEithers' t  
 
 -- 43
 
 catMaybes :: [Maybe a] -> [a]
-catMaybes (m:ms) = case m of (Nothing) -> catMaybes ms
-                             (Just x) -> x:catMaybes ms
 catMaybes [] = []
+catMaybes (m:ms) = case m of Nothing -> catMaybes ms
+                             Just x -> x:catMaybes ms
 
-mycatMaybes :: [Maybe a] -> [a]
-mycatMaybes [] = []
-mycatMaybes ((Just a):ms) = a:mycatMaybes ms
-mycatMaybes (Nothing:ms) = mycatMaybes ms
+catMaybes' :: [Maybe a] -> [a]
+catMaybes' [] = []
+catMaybes' ((Just a):ms) = a:catMaybes' ms
+catMaybes' (Nothing:ms) = catMaybes' ms
 
 -- 44
 
-data Movimento = Norte | Sul | Este | Oeste deriving Show --(Show, Eq)
+data Movimento = Norte | Sul | Este | Oeste deriving Show
 
 posicao :: (Int,Int) -> [Movimento] -> (Int,Int)
 posicao p [] = p
@@ -352,38 +386,33 @@ vertical (l:ls) = case l of Este -> False
                             Oeste -> False
                             otherwise -> vertical ls
 
-{- APENAS FUNCIONA SE MOVIMENTO TIVER A PROPRIEDADE EQ
-vertical' :: [Movimento] -> Bool
-vertical' l = foldl (\acc x -> if (x == Este || x == Oeste) then False else acc) True l
--}
-
 -- 47
 
 data Posicao = Pos Int Int deriving Show
 
 maisCentral ::  [Posicao] -> Posicao
-maisCentral ps = foldl1 (\(Pos xacc yacc) (Pos x y) -> if (xacc^2 + yacc^2) > (x^2 + y^2) then (Pos x y) else (Pos xacc yacc)) ps
+maisCentral = foldl1 (\(Pos xacc yacc) (Pos x y) -> if (xacc^2 + yacc^2) > (x^2 + y^2) then (Pos x y) else (Pos xacc yacc))
 
-mymaisCentral :: [Posicao] -> Posicao
-mymaisCentral [(Pos x y)] = (Pos x y)
-mymaisCentral ((Pos x y):(Pos a b):ps) = if (x^2 + y^2) < (a^2 + b^2) then maisCentral ((Pos x y):ps) else maisCentral ((Pos a b):ps)
+maisCentral' :: [Posicao] -> Posicao
+maisCentral' [(Pos x y)] = (Pos x y)
+maisCentral' ((Pos x y):(Pos a b):ps) = if (x^2 + y^2) < (a^2 + b^2) then maisCentral ((Pos x y):ps) else maisCentral ((Pos a b):ps)
 
 -- 48
 
 vizinhos ::  Posicao -> [Posicao] -> [Posicao]
 vizinhos (Pos x y) ps = filter (\(Pos a b) -> (abs (a - x) + abs (b - y) == 1)) ps 
 
-myvizinhos :: Posicao -> [Posicao] -> [Posicao]
-myvizinhos _ [] = []
-myvizinhos (Pos x y) ((Pos xv yv):ps) = if abs (x - xv) == 1 && y == yv || abs (y - yv) == 1 && x == xv 
-                                        then (Pos xv yv):myvizinhos (Pos x y) ps 
-                                        else myvizinhos (Pos x y) ps
+vizinhos' :: Posicao -> [Posicao] -> [Posicao]
+vizinhos' _ [] = []
+vizinhos' (Pos x y) ((Pos xv yv):ps) = if abs (x - xv) == 1 && y == yv || abs (y - yv) == 1 && x == xv 
+                                       then (Pos xv yv):myvizinhos (Pos x y) ps 
+                                       else myvizinhos (Pos x y) ps
 
 -- 49
 
 mesmaOrdenada :: [Posicao] -> Bool
 mesmaOrdenada [(Pos x y)] = True
-mesmaOrdenada ((Pos x y):(Pos x2 y2):ps) = y == y2 && mesmaOrdenada ((Pos x2 y2):ps) 
+mesmaOrdenada ((Pos x y):(Pos x2 y2):ps) = y == y2 && mesmaOrdenada ((Pos x2 y2):ps)
 
 -- 50
 
