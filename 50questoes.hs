@@ -372,10 +372,10 @@ posicao (x, y) (m:ms) = posicao (case m of Norte -> (x, y + 1)
 
 caminho :: (Int,Int) -> (Int,Int) -> [Movimento]
 caminho (xi,yi) (xf,yf)
-    | xi < xf = Norte:caminho (xi + 1, yi) (xf, yf)
-    | xi > xf = Sul:caminho (xi - 1, yi) (xf, yf)
-    | yi < yf = Este:caminho (xi, yi + 1) (xf, yf)
-    | yi > yf = Oeste:caminho (xi, yi - 1) (xf, yf)
+    | xi < xf = Este:caminho (xi + 1, yi) (xf, yf)
+    | xi > xf = Oeste:caminho (xi - 1, yi) (xf, yf)
+    | yi < yf = Norte:caminho (xi, yi + 1) (xf, yf)
+    | yi > yf = Sul:caminho (xi, yi - 1) (xf, yf)
     | otherwise = []
 
 -- 46
@@ -405,8 +405,8 @@ vizinhos (Pos x y) ps = filter (\(Pos a b) -> (abs (a - x) + abs (b - y) == 1)) 
 vizinhos' :: Posicao -> [Posicao] -> [Posicao]
 vizinhos' _ [] = []
 vizinhos' (Pos x y) ((Pos xv yv):ps) = if abs (x - xv) == 1 && y == yv || abs (y - yv) == 1 && x == xv 
-                                       then (Pos xv yv):myvizinhos (Pos x y) ps 
-                                       else myvizinhos (Pos x y) ps
+                                       then (Pos xv yv):vizinhos' (Pos x y) ps 
+                                       else vizinhos' (Pos x y) ps
 
 -- 49
 
