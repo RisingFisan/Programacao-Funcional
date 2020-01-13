@@ -47,3 +47,18 @@ verEmails nome [] = Nothing
 verEmails nome agenda@((nomeX, contactos) : t)
     | nome == nomeX = foldr (\x acc -> case x of Email email -> if acc == Nothing then Just [email] else ((:) email) <$> acc; otherwise -> acc) Nothing contactos
     | otherwise     = verEmails nome t
+
+consulta :: [Contacto] -> ([Integer],[String])
+consulta = foldr (\x (i,s) -> case x of Email email -> (i,email:s); otherwise -> (n x:i,s)) ([],[]) 
+    where n x = case x of Casa num -> num
+                          Trab num -> num
+                          Tlm num -> num
+
+consultaIO :: Agenda -> IO ()
+consultaIO agenda = do
+    nome <- getLine
+    let contactos = aux nome agenda
+    putStrLn (concat [show x ++ "\n" | x <- contactos])
+
+    where aux _ [] = []
+          aux nome ((name,contactos):t) = if name == nome then contactos else aux nome t
