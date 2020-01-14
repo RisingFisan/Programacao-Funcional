@@ -1,3 +1,5 @@
+import Data.List (nub)
+
 -- Exercício 1
 
 intersect :: Eq a => [a] -> [a] -> [a]
@@ -58,7 +60,30 @@ consultaIO :: Agenda -> IO ()
 consultaIO agenda = do
     nome <- getLine
     let contactos = aux nome agenda
-    putStrLn (concat [show x ++ "\n" | x <- contactos])
+    putStr (concat [show x ++ "\n" | x <- contactos])
 
     where aux _ [] = []
           aux nome ((name,contactos):t) = if name == nome then contactos else aux nome t
+
+-- Exercício 4
+
+data RTree a = R a [RTree a] deriving (Show, Eq)
+
+tree1 = R 1 [R 2 [],
+             R 3 [R 4 [R 5 [],
+                       R 6 []
+                      ]
+                 ],
+             R 7 []
+            ]
+
+paths :: RTree a -> [[a]]
+paths (R node []) = [[node]]
+paths (R node branches) = [ node : x | x <- concat [paths branch | branch <- branches]]
+
+unpaths :: Eq a => [[a]] -> RTree a
+unpaths [[x]] = R x []
+unpaths list = R n [unpaths (foldl (\acc branch -> if head branch == y then branch:acc else acc) [] branches) | y <- heads]
+    where n = head $ head list
+          branches = [tail x | x <- list]
+          heads = Data.List.nub [head x | x <- branches]
