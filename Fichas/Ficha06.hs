@@ -114,7 +114,7 @@ nota _ _ = Nothing
 
 percFaltas :: Turma -> Float
 percFaltas Empty = 0
-percFaltas turma = sumFaltas turma / numAlunos turma
+percFaltas turma = sumFaltas turma / numAlunos turma * 100
     where sumFaltas Empty = 0
           sumFaltas (Node (_,_,_,clas) l r) = (case clas of Faltou -> 1;otherwise -> 0) + sumFaltas l + sumFaltas r
           numAlunos Empty = 0
