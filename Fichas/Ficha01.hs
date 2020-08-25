@@ -130,7 +130,7 @@ poligono (Triangulo p1 p2 p3) = (posy p2 - posy p1) / (posx p2 - posx p1) /= (po
 
 vertices :: Figura -> [Ponto]
 vertices (Circulo _ _) = []
-vertices retang@(Retangulo p1 p2) = if poligono retang then [(p1), (Cartesiano (posx p1) (posy p2)), (Cartesiano (posx p2) (posy p1)), (p2)] else []
+vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, (Cartesiano (posx p1) (posy p2)), (Cartesiano (posx p2) (posy p1)), (p2)] else []
 vertices triang@(Triangulo p1 p2 p3) = if poligono triang then [p1, p2, p3] else []
 
 area :: Figura -> Double
@@ -151,10 +151,10 @@ perimetro (Triangulo p1 p2 p3) = dist p1 p2 + dist p2 p3 + dist p1 p3
 -- Exercicio 8
 
 isLower' :: Char -> Bool
-isLower' ch = elem (ord ch) [97..122]
+isLower' ch = elem ch ['a'..'z']
 
 isUpper' :: Char -> Bool
-isUpper' ch = elem (ord ch) [65..90]
+isUpper' ch = elem ch ['A'..'Z']
 
 isDigit' :: Char -> Bool
 isDigit' d = elem d ['0'..'9']
