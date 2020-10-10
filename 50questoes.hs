@@ -138,7 +138,7 @@ nub' (h:t) = h : filter (/= h) (nub' t)
 
 nub2 :: Eq a => [a] -> [a]
 nub2 [] = []
-nub2 (h:t) = if elem h t then nub2 t else h:nub2 t
+nub2 (h:t) = if h `elem` t then nub2 t else h:nub2 t
 
 -- 21
 
@@ -183,7 +183,7 @@ insert' x (h:t)
 
 unwords' :: [String] -> String
 unwords' [] = ""
-unwords' (h:t) = h ++ (if t == [] then "" else " ") ++ unwords' t
+unwords' (h:t) = h ++ (if null t then "" else " ") ++ unwords' t
 
 -- 27
 
@@ -370,13 +370,12 @@ posicao (x, y) (m:ms) = posicao (case m of Norte -> (x, y + 1)
 
 -- 45
 
-caminho :: (Int,Int) -> (Int,Int) -> [Movimento]
-caminho (xi,yi) (xf,yf)
-    | xi < xf = Este:caminho (xi + 1, yi) (xf, yf)
-    | xi > xf = Oeste:caminho (xi - 1, yi) (xf, yf)
-    | yi < yf = Norte:caminho (xi, yi + 1) (xf, yf)
-    | yi > yf = Sul:caminho (xi, yi - 1) (xf, yf)
-    | otherwise = []
+caminho :: (Int, Int) -> (Int, Int) -> [Movimento]
+caminho (xi, yi) (xf, yf) | xi < xf   = Este : caminho (xi + 1, yi) (xf, yf)
+                          | xi > xf   = Oeste : caminho (xi - 1, yi) (xf, yf)
+                          | yi < yf   = Norte : caminho (xi, yi + 1) (xf, yf)
+                          | yi > yf   = Sul : caminho (xi, yi - 1) (xf, yf)
+                          | otherwise = []
 
 -- 46
 
@@ -384,39 +383,39 @@ vertical :: [Movimento] -> Bool
 vertical [] = True
 vertical (l:ls) = case l of Este -> False
                             Oeste -> False
-                            otherwise -> vertical ls
+                            _ -> vertical ls
 
 -- 47
 
 data Posicao = Pos Int Int deriving Show
 
 maisCentral ::  [Posicao] -> Posicao
-maisCentral = foldl1 (\(Pos xacc yacc) (Pos x y) -> if (xacc^2 + yacc^2) > (x^2 + y^2) then (Pos x y) else (Pos xacc yacc))
+maisCentral = foldl1 (\(Pos xacc yacc) (Pos x y) -> if (xacc^2 + yacc^2) > (x^2 + y^2) then Pos x y else Pos xacc yacc)
 
 maisCentral' :: [Posicao] -> Posicao
-maisCentral' [(Pos x y)] = (Pos x y)
-maisCentral' ((Pos x y):(Pos a b):ps) = if (x^2 + y^2) < (a^2 + b^2) then maisCentral ((Pos x y):ps) else maisCentral ((Pos a b):ps)
+maisCentral' [Pos x y] = Pos x y
+maisCentral' ((Pos x y):(Pos a b):ps) = if (x^2 + y^2) < (a^2 + b^2) then maisCentral (Pos x y : ps) else maisCentral (Pos a b : ps)
 
 -- 48
 
 vizinhos ::  Posicao -> [Posicao] -> [Posicao]
-vizinhos (Pos x y) ps = filter (\(Pos a b) -> (abs (a - x) + abs (b - y) == 1)) ps 
+vizinhos (Pos x y) = filter (\(Pos a b) -> abs (a - x) + abs (b - y) == 1)
 
 vizinhos' :: Posicao -> [Posicao] -> [Posicao]
 vizinhos' _ [] = []
 vizinhos' (Pos x y) ((Pos xv yv):ps) = if abs (x - xv) == 1 && y == yv || abs (y - yv) == 1 && x == xv 
-                                       then (Pos xv yv):vizinhos' (Pos x y) ps 
+                                       then Pos xv yv : vizinhos' (Pos x y) ps 
                                        else vizinhos' (Pos x y) ps
 
 -- 49
 
 mesmaOrdenada :: [Posicao] -> Bool
-mesmaOrdenada [(Pos x y)] = True
-mesmaOrdenada ((Pos x y):(Pos x2 y2):ps) = y == y2 && mesmaOrdenada ((Pos x2 y2):ps)
+mesmaOrdenada [Pos x y] = True
+mesmaOrdenada ((Pos x y):(Pos x2 y2):ps) = y == y2 && mesmaOrdenada (Pos x2 y2 : ps)
 
 -- 50
 
 data Semaforo = Verde | Amarelo | Vermelho deriving Show
 
 interseccaoOK :: [Semaforo] -> Bool
-interseccaoOK ss = length [s | s <- ss, case s of Vermelho -> False; otherwise -> True] < 2
+interseccaoOK ss = length [s | s <- ss, case s of Vermelho -> False; _ -> True] < 2
