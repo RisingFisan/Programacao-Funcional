@@ -9,6 +9,10 @@ enumFromTo' start end
     | start == end = [end]
     | otherwise = start:enumFromTo (start+1) end
 
+enumFromToScary :: Int -> Int -> [Int]
+enumFromToScary = curry (uncurry (flip takeWhile) . split (iterate (+1) . fst) ((>=) . snd))
+    where split f g x = (f x, g x)
+
 -- 2
 
 enumFromThenTo' :: Int -> Int -> Int -> [Int]
@@ -22,6 +26,9 @@ concat'' :: [a] -> [a] -> [a]
 concat'' [] l = l
 concat'' (h:t) l = h:concat'' t l
 
+concat_mini :: [a] -> [a] -> [a]
+concat_mini = flip $ foldr (:)
+
 -- 4
 
 getFromIndex :: [a] -> Int -> a
@@ -29,11 +36,17 @@ getFromIndex (h:t) n
     | n == 0 = h
     | otherwise = getFromIndex t (n - 1)
 
+getFromIndex' :: [a] -> Int -> a
+getFromIndex' l n = head (foldl (curry $ tail . fst) l [1..n])
+
 -- 5
 
 reverse' :: [a] -> [a]
 reverse' [] = []
 reverse' (h:t) = reverse' t ++ [h]
+
+reverse_mini :: [a] -> [a]
+reverse_mini = foldl (flip (:)) []
 
 -- 6
 
@@ -42,12 +55,17 @@ take' 0 _ = []
 take' _ [] = []
 take' n (h:t) = h : take' (n - 1) t
 
+take_fold n = foldl (\acc x -> if length acc < n then acc ++ [x] else acc) [] 
+
 -- 7
 
 drop' :: Int -> [a] -> [a]
 drop' 0 l = l
 drop' _ [] = []
-drop' n (h:t) = drop' (n - 1) t
+drop' n (_:t) = drop' (n - 1) t
+
+drop_fold :: Int -> [a] -> [a]
+drop_fold n l = foldr (\x acc -> if length acc < length l - n then x:acc else acc) [] l
 
 -- 8
 
@@ -61,6 +79,9 @@ zip' (h:t) (h':t') = (h,h'):zip' t t'
 elem' :: Eq a => a -> [a] -> Bool
 elem' _ [] = False
 elem' x (h:t) = x == h || elem' x t
+
+elem_mini :: Eq a => a -> [a] -> Bool
+elem_mini a = foldr ((||) . (==) a) False
 
 -- 10
 
@@ -81,17 +102,34 @@ group' :: Eq a => [a] -> [[a]]
 group' [] = []
 group' (h:t) = (h:takeWhile (== h) t) : group' (dropWhile (== h) t)
 
+group'' :: Eq a => [a] -> [[a]]
+group'' [] = []
+group'' (x:xs) = (x:aux xs):aux2 xs
+    where aux (y:ys) = if y == x then y:aux ys else []
+          aux [] = []
+          aux2 [] = []
+          aux2 (z:zs) = if z == x then aux2 zs else group'' (z:zs)
+
 -- 13
 
 concat' :: [[a]] -> [a]
 concat' [] = []
 concat' (h:t) = h ++ concat' t
 
+concat'_mini :: [[a]] -> [a]
+concat'_mini = foldr (++) []
+
 -- 14
 
 inits' :: [a] -> [[a]]
 inits' [] = [[]]
 inits' l = inits' (init l) ++ [l] 
+
+inits'' :: [a] -> [[a]]
+inits'' [x] = [[],[x]]
+inits'' (x:xs) = [] : aux x (inits'' xs)
+    where aux a (h:t) = (a:h):aux a t
+          aux _ [] = []
 
 -- 15
 
@@ -124,17 +162,18 @@ isSubsequenceOf' (h:t) (h':t') = h == h' && isSubsequenceOf' t t' || isSubsequen
 
 elemIndices' :: Eq a => a -> [a] -> [Int]
 elemIndices' _ [] = []
-elemIndices' x (h:t) 
+elemIndices' x (h:t)
     | x == h = 0 : map (+1) (elemIndices' x t)
     | otherwise = map (+1) (elemIndices' x t)
+
+elemIndices'' :: Eq a => a -> [a] -> [Int]
+elemIndices'' x l = [n | n <- [0..(length l - 1)], x == (l !! n)]
 
 -- 20
 
 nub' :: Eq a => [a] -> [a]
 nub' [] = []
 nub' (h:t) = h : filter (/= h) (nub' t)
-
--- OU
 
 nub2 :: Eq a => [a] -> [a]
 nub2 [] = []
@@ -222,6 +261,10 @@ algarismos [] = []
 algarismos (h:t)
     | h `elem` ['0'..'9'] = h:algarismos t
     | otherwise = algarismos t
+
+algarismos' :: [Char] -> [Char]
+algarismos' [] = []
+algarismos' l = filter (`elem` ['0'..'9']) l
 
 -- 31
 
@@ -333,9 +376,9 @@ partitionEithers ::  [Either a b] -> ([a],[b])
 partitionEithers l = (partitionLefts l, partitionRights l)
     where partitionLefts [] = []
           partitionLefts ((Left x):ls) = x:partitionLefts ls
-          partitionLefts ((Right x):ls) = partitionLefts ls
+          partitionLefts ((Right _):ls) = partitionLefts ls
           partitionRights [] = []
-          partitionRights ((Left x):ls) = partitionRights ls
+          partitionRights ((Left _):ls) = partitionRights ls
           partitionRights ((Right x):ls) = x:partitionRights ls
 
 partitionEithers' :: [Either a b] -> ([a],[b])
