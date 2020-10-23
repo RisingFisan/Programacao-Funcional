@@ -14,11 +14,13 @@ primUlt l = (head l, last l)
 multiplo :: Int -> Int -> Bool
 multiplo x y = mod x y == 0
 
-truncaImpar l = if length l `mod` 2 == 0 then l else tail l 
+truncaImpar l = if even $ length l then l else tail l 
 
+max2 :: Ord p => p -> p -> p
 max2 x y = if x > y then x else y
 
-max3 x y z = max2 (max2 x y) z
+max3 :: Ord p => p -> p -> p -> p
+max3 x y = max2 (max2 x y)
 
 -- Exercício 2
 
@@ -34,7 +36,7 @@ raizes a b c
     | n == 0 = [] 
     where n = nRaizes a b c
           delta = b^2 - 4*a*c
-          (x1,x2) = (((-b) + sqrt (delta))/ (2*a), ((-b) - sqrt (delta))/ (2*a))
+          (x1,x2) = (((-b) + sqrt delta)/ (2*a), ((-b) - sqrt delta)/ (2*a))
 
 -- Exercício 3
 
@@ -44,14 +46,14 @@ raizes a b c
 
 horaValida (h, m) = elem h [0..23] && elem m [0..59]
 
-horaMaior (h1, m1) (h2, m2) = if (horaValida (h1, m1) && horaValida (h2, m2)) 
-                                  then if (h1 > h2 || (h1 == h2 && m1 > m2)) 
+horaMaior (h1, m1) (h2, m2) = if horaValida (h1, m1) && horaValida (h2, m2)
+                                  then if h1 > h2 || (h1 == h2 && m1 > m2)
                                            then (h1, m1) 
                                            else (h2, m2) 
                                   else error "Hora inválida!"
 
 -- Versão mais pequena da função acima:
-horaMaiorv2 h1 h2 = if (h1 > h2) then h1 else h2
+horaMaiorv2 h1 h2 = if h1 > h2 then h1 else h2
 
 hor2min (h, m) = 60 * h + m
 min2hor min = (div min 60, mod min 60)
@@ -71,7 +73,7 @@ horaValida' (H h m) = elem h [0..23] && elem m [0..59]
 
 hor2min' (H h m) = 60 * h + m
 
-min2hor' min = (H (div min 60) (mod min 60))
+min2hor' min = H (div min 60) (mod min 60)
 
 hordiff' h1 h2 = min2hor' $ abs $ hor2min' h1 - hor2min' h2
 
@@ -130,7 +132,7 @@ poligono (Triangulo p1 p2 p3) = (posy p2 - posy p1) / (posx p2 - posx p1) /= (po
 
 vertices :: Figura -> [Ponto]
 vertices (Circulo _ _) = []
-vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, (Cartesiano (posx p1) (posy p2)), (Cartesiano (posx p2) (posy p1)), (p2)] else []
+vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, Cartesiano (posx p1) (posy p2), Cartesiano (posx p2) (posy p1), p2] else []
 vertices triang@(Triangulo p1 p2 p3) = if poligono triang then [p1, p2, p3] else []
 
 area :: Figura -> Double
@@ -151,22 +153,22 @@ perimetro (Triangulo p1 p2 p3) = dist p1 p2 + dist p2 p3 + dist p1 p3
 -- Exercicio 8
 
 isLower' :: Char -> Bool
-isLower' ch = elem ch ['a'..'z']
+isLower' ch = ch `elem` ['a'..'z']
 
 isUpper' :: Char -> Bool
-isUpper' ch = elem ch ['A'..'Z']
+isUpper' ch = ch `elem` ['A'..'Z']
 
 isDigit' :: Char -> Bool
-isDigit' d = elem d ['0'..'9']
+isDigit' d = d `elem` ['0'..'9']
 
 isAlpha' :: Char -> Bool
 isAlpha' ch = isLower' ch || isUpper' ch
 
 toUpper' :: Char -> Char
-toUpper' ch = if isLower' ch then chr ((ord ch) - 32) else ch
+toUpper' ch = if isLower' ch then chr (ord ch - 32) else ch
 
 intToDigit' :: Int -> Char
 intToDigit' n = chr (n + 48)
 
 digitToInt' :: Char -> Int 
-digitToInt' ch = ord (ch) - 48
+digitToInt' ch = ord ch - 48

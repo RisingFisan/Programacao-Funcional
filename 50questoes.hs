@@ -6,7 +6,7 @@ import Data.List
 
 enumFromTo' :: Int -> Int -> [Int]
 enumFromTo' start end 
-    | start == end = [end]
+    | start > end = []
     | otherwise = start:enumFromTo (start+1) end
 
 enumFromToScary :: Int -> Int -> [Int]
@@ -16,8 +16,8 @@ enumFromToScary = curry (uncurry (flip takeWhile) . split (iterate (+1) . fst) (
 -- 2
 
 enumFromThenTo' :: Int -> Int -> Int -> [Int]
-enumFromThenTo' start next end 
-    | start > end = []
+enumFromThenTo' start next end
+    | start > end && next - start > 0 || start < end && next - start < 0 = []
     | otherwise = start:enumFromThenTo' next (2 * next - start) end
 
 -- 3

@@ -1,5 +1,5 @@
 module Ficha2 where
-import Data.Char (chr, ord)
+import Data.Char (ord)
 import Data.List (partition)
 
 -- Exercício 1
@@ -37,7 +37,8 @@ positivos (n:ns)
     | n < 0 = False
     | otherwise = positivos ns
 
-positivos' ns = all (>=0) ns
+positivos' :: [Int] -> Bool
+positivos' = all (>=0)
 
 soPos :: [Int] -> [Int]
 soPos [n] 
@@ -52,13 +53,15 @@ somaNeg :: [Int] -> Int
 somaNeg l = case l of [n] -> if n < 0 then n else 0
                       (n:ns) -> if n < 0 then n + somaNeg ns else somaNeg ns
 
-somaNeg' l = foldl (\acc x -> if x < 0 then acc + x else acc) 0 l
+somaNeg' :: [Int] -> Int
+somaNeg' = foldl (\acc x -> if x < 0 then acc + x else acc) 0
 
 tresUlt :: [a] -> [a]
-tresUlt l = case l of (a:b:c:d:xs) -> tresUlt (b:c:d:xs)
-                      otherwise -> l
+tresUlt l = case l of (_:b:c:d:xs) -> tresUlt (b:c:d:xs)
+                      _ -> l
 
-tresUlt' l = foldr (\x acc -> if length acc < 3 then (x:acc) else acc) [] l
+tresUlt' :: Foldable t => t a -> [a]
+tresUlt' = foldr (\x acc -> if length acc < 3 then x : acc else acc) []
 
 segundos :: [(a,b)] -> [b]
 segundos [(a,b)] = [b]
@@ -70,7 +73,8 @@ nosPrimeiros :: (Eq a) => a -> [(a,b)] -> Bool
 nosPrimeiros x [(a,b)] = x == a
 nosPrimeiros x (s:ss) = x == fst s || nosPrimeiros x ss
 
-nosPrimeiros' x l = foldl (\acc (a,b) -> if x == a then True else acc) False l 
+nosPrimeiros' :: (Eq a) => a -> [(a,b)] -> Bool
+nosPrimeiros' x = foldl (\acc (a,b) -> x == a || acc) False
 
 sumTriplos :: (Num a, Num b, Num c) => [(a,b,c)] -> (a,b,c)
 sumTriplos [(x,y,z)] = (x,y,z)
@@ -86,36 +90,34 @@ sumTriplos' l = (sumA, sumB, sumC)
 
 -- Forma não recursiva:
 soDigitos :: [Char] -> [Char]
-soDigitos l = [digit | digit <- l, elem digit ['0'..'9']]
+soDigitos l = [digit | digit <- l, digit `elem` ['0'..'9']]
 
 -- Forma recursiva:
 soDigitos' :: [Char] -> [Char]
-soDigitos' [c] = if elem c ['0'..'9'] then [c] else []
+soDigitos' [] = []
 soDigitos' (l:ls)
-        | elem l ['0'..'9'] = l:soDigitos' ls
+        | l `elem` ['0'..'9'] = l:soDigitos' ls
         | otherwise = soDigitos' ls
 
-soDigitos'' l = filter (`elem` ['0'..'9']) l
+soDigitos'' :: [Char] -> [Char]
+soDigitos'' = filter (`elem` ['0'..'9'])
 
 minusculas :: [Char] -> Int
-minusculas (c:str) = if elem c ['a'..'z'] then 1 + case str of str -> minusculas str
-                                          else case str of [] -> 0
-                                                           otherwise -> minusculas str
-minusculas' str = foldl (\acc x -> if elem x ['a'..'z'] then acc + 1 else acc) 0 str
--- Outra forma de fazer esta alínea:
--- minusculas [c] = if elem c ['a'..'z'] then 1
---                                       else 0
--- minusculas (c:cs) = if elem c ['a'..'z'] then 1 + minusculas cs 
---                                          else minusculas cs
+minusculas [] = 0
+minusculas (c:str) = if c `elem` ['a'..'z'] then 1 + minusculas str
+                                            else minusculas str
+                                            
+minusculas' :: [Char] -> Int
+minusculas' = foldl (\acc x -> if x `elem` ['a'..'z'] then acc + 1 else acc) 0
 
-nums :: String -> [Int]
 -- Forma não recursiva:
-nums' str = [ord num - ord '0' | num <- str, elem num ['0'..'9']]
+nums' :: [Char] -> [Int]
+nums' str = [ord num - ord '0' | num <- str, num `elem` ['0'..'9']]
 -- Forma recursiva:
-nums [c] = if elem c ['0'..'9'] then [(ord c - ord '0')]
-                                else []
-nums (c:str) = if elem c ['0'..'9'] then (ord c - ord '0'):nums str 
-                                    else nums str
+nums :: [Char] -> [Int]
+nums [] = []
+nums (c:str) = if c `elem` ['0'..'9'] then (ord c - ord '0') : nums str 
+                                      else nums str
 
 -- Exercício 4
 
@@ -162,9 +164,10 @@ normaliza ((b,e):ps) = (sum [bs | (bs,es) <- selgrau e ps] + b,e):normaliza [(bo
 normaliza' :: Polinomio -> Polinomio
 normaliza' [] = []
 normaliza' [(b,e)] = [(b,e)]
-normaliza' ((b,e):(b2,e2):ps) = if e == e2 then normaliza' ((b+b2,e):ps) 
-                                           else if conta e ps == 0 then (b,e):normaliza' ((b2,e2):ps)
-                                                                   else normaliza' ((b,e):ps ++ [(b2,e2)]) 
+normaliza' ((b, e) : (b2, e2) : ps)
+  | e == e2 = normaliza' ((b + b2, e) : ps)
+  | conta e ps == 0 = (b, e) : normaliza' ((b2, e2) : ps)
+  | otherwise = normaliza' ((b, e) : ps ++ [(b2, e2)])
 
 soma :: Polinomio -> Polinomio -> Polinomio
 soma p1 p2 = normaliza (p1 ++ p2)
@@ -177,9 +180,9 @@ ordena :: Polinomio -> Polinomio -- Esta função deu-me cabo da cabeça, foda-s
 ordena [] = []
 ordena ((b,e):ps) = ordena (maisAltos ps) ++ [(b,e)] ++ ordena (maisBaixos ps)
     where maisAltos [] = []
-          maisAltos ((bx,ex):xs) = if (ex > e || (ex == e && bx >= b)) then (bx,ex):maisAltos xs else maisAltos xs
+          maisAltos ((bx,ex):xs) = if ex > e || (ex == e && bx >= b) then (bx,ex):maisAltos xs else maisAltos xs
           maisBaixos [] = []
-          maisBaixos ((bx,ex):xs) = if (ex < e || (ex == e && bx < b)) then (bx,ex):maisBaixos xs else maisBaixos xs
+          maisBaixos ((bx,ex):xs) = if ex < e || (ex == e && bx < b) then (bx,ex):maisBaixos xs else maisBaixos xs
 {- 
 ordena ((b,e):ps) = monomiosMaisAltos ++ [(b,e)] ++ monomiosMaisBaixos
         where monomiosMaisAltos = ordena [mm | mm@(bm,em) <- ps, (em > e || (em == e && bm >= b))]
