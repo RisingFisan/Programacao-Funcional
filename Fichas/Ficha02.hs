@@ -25,10 +25,11 @@ d) funD "otrec" = g [] "otrec" = g [] 'o':"trec" = g 'o':[] "trec" = g ['o'] 't'
 -- Exercício 2
 
 dobros :: [Float] -> [Float]
-dobros l = [2*x | x <- l]
+dobros [] = []
+dobros (h:t) = 2*h : dobros t
 
 numOcorre :: Char -> String -> Int
-numOcorre x [] = 0
+numOcorre _ [] = 0
 numOcorre x (c:str) = if x==c then 1 + numOcorre x str else numOcorre x str
 
 positivos :: [Int] -> Bool
@@ -60,17 +61,18 @@ tresUlt :: [a] -> [a]
 tresUlt l = case l of (_:b:c:d:xs) -> tresUlt (b:c:d:xs)
                       _ -> l
 
-tresUlt' :: Foldable t => t a -> [a]
+tresUlt' :: [a] -> [a]
 tresUlt' = foldr (\x acc -> if length acc < 3 then x : acc else acc) []
 
 segundos :: [(a,b)] -> [b]
-segundos [(a,b)] = [b]
-segundos ((a,b):l) = b:segundos l
+segundos [] = []
+segundos ((_,b):l) = b:segundos l
 
-segundos' l = [snd ab | ab <- l]
+segundos' :: [(a, b)] -> [b]
+segundos' = map snd
 
 nosPrimeiros :: (Eq a) => a -> [(a,b)] -> Bool
-nosPrimeiros x [(a,b)] = x == a
+nosPrimeiros x [(a,_)] = x == a
 nosPrimeiros x (s:ss) = x == fst s || nosPrimeiros x ss
 
 nosPrimeiros' :: (Eq a) => a -> [(a,b)] -> Bool
@@ -128,18 +130,19 @@ conta :: Int -> Polinomio -> Int
 -- ASSIM: OU conta n p = length selgrau n p
 conta n p = length [(b,e) | (b,e) <- p, e == n]
 -- OU ASSIM:
-conta' n [] = 0
-conta' n ((b,e):ps) = if e == n then 1 + conta' n ps else conta' n ps
+conta' :: Int -> Polinomio -> Int
+conta' _ [] = 0
+conta' n ((_,e):ps) = if e == n then 1 + conta' n ps else conta' n ps
 
 grau :: Polinomio -> Int
 grau [(b,e)] = e
 grau ((b,e):ps) = if e > grau ps then e else grau ps
 
+grau' :: Polinomio -> Int
+grau' = maximum . map snd
+
 selgrau :: Int -> Polinomio -> Polinomio
 selgrau n p = [(b,e) | (b,e) <- p, e == n]
-
-selgrau' _ [] = []
-selgrau' n ((b,e):ps) = if e == n then (b,e):selgrau' n ps else selgrau' n ps
 
 deriv :: Polinomio -> Polinomio
 deriv [] = []

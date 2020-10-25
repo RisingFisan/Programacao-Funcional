@@ -14,6 +14,12 @@ primUlt l = (head l, last l)
 multiplo :: Int -> Int -> Bool
 multiplo x y = mod x y == 0
 
+multiplo' :: Int -> Int -> Bool
+multiplo' x = (==) 0 . mod x
+
+multiplo'' :: Int -> Int -> Bool
+multiplo'' = curry ((== 0) . uncurry mod)
+
 truncaImpar l = if even $ length l then l else tail l 
 
 max2 :: Ord p => p -> p -> p

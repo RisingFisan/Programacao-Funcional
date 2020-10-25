@@ -55,6 +55,7 @@ take' 0 _ = []
 take' _ [] = []
 take' n (h:t) = h : take' (n - 1) t
 
+take_fold :: Int -> [a] -> [a]
 take_fold n = foldl (\acc x -> if length acc < n then acc ++ [x] else acc) [] 
 
 -- 7
@@ -83,11 +84,17 @@ elem' x (h:t) = x == h || elem' x t
 elem_mini :: Eq a => a -> [a] -> Bool
 elem_mini a = foldr ((||) . (==) a) False
 
+elem'' :: Eq a => a -> [a] -> Bool
+elem'' = any . (==)
+
 -- 10
 
 replicate' :: Int -> a -> [a]
 replicate' 0 _ = []
 replicate' n x = x:replicate' (n - 1) x
+
+replicate'' :: Int -> a -> [a]
+replicate'' = flip $ flip take . repeat
 
 -- 11
 
@@ -187,6 +194,9 @@ delete' x (h:t)
     | x == h = t
     | otherwise = h:delete' x t
 
+delete'' :: Eq a => a -> [a] -> [a]
+delete'' = filter . (/=)
+
 -- 22
 
 remove :: Eq a => [a] -> [a] -> [a]
@@ -268,10 +278,13 @@ algarismos' l = filter (`elem` ['0'..'9']) l
 
 -- 31
 
-posImpares ::  [a] -> [a]
+posImpares :: [a] -> [a]
 posImpares [] = []
 posImpares [_] = []
 posImpares (h:s:t) = s:posImpares t
+
+posImpares' :: [a] -> [a]
+posImpares' = map snd . filter (odd . fst) . zip (iterate (+1) 0)
 
 -- 32
 
@@ -280,11 +293,14 @@ posPares [] = []
 posPares [x] = [x]
 posPares (h:s:t) = h:posPares t
 
+posPares' :: [a] -> [a]
+posPares' = map snd . filter (even . fst) . zip (iterate (+1) 0)
+
 -- 33
 
 isSorted :: Ord a => [a] -> Bool
 isSorted [] = True
-isSorted [x] = True
+isSorted [_] = True
 isSorted (h:s:t) = s >= h && isSorted (s:t)
 
 -- 34
