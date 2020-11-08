@@ -53,7 +53,9 @@ reverse_mini = foldl (flip (:)) []
 take' :: Int -> [a] -> [a]
 take' 0 _ = []
 take' _ [] = []
-take' n (h:t) = h : take' (n - 1) t
+take' n (h:t) 
+    | n < 0 = []
+    | otherwise = h : take' (n - 1) t
 
 take_fold :: Int -> [a] -> [a]
 take_fold n = foldl (\acc x -> if length acc < n then acc ++ [x] else acc) [] 
@@ -63,7 +65,9 @@ take_fold n = foldl (\acc x -> if length acc < n then acc ++ [x] else acc) []
 drop' :: Int -> [a] -> [a]
 drop' 0 l = l
 drop' _ [] = []
-drop' n (_:t) = drop' (n - 1) t
+drop' n (h:t)
+    | n < 0 = h:t
+    | otherwise = drop' (n - 1) t
 
 drop_fold :: Int -> [a] -> [a]
 drop_fold n l = foldr (\x acc -> if length acc < length l - n then x:acc else acc) [] l
@@ -91,7 +95,9 @@ elem'' = any . (==)
 
 replicate' :: Int -> a -> [a]
 replicate' 0 _ = []
-replicate' n x = x:replicate' (n - 1) x
+replicate' n x
+    | n < 0 = []
+    | otherwise = x:replicate' (n - 1) x
 
 replicate'' :: Int -> a -> [a]
 replicate'' = flip $ flip take . repeat
@@ -273,8 +279,7 @@ algarismos (h:t)
     | otherwise = algarismos t
 
 algarismos' :: [Char] -> [Char]
-algarismos' [] = []
-algarismos' l = filter (`elem` ['0'..'9']) l
+algarismos' = filter (`elem` ['0'..'9'])
 
 -- 31
 
@@ -340,14 +345,20 @@ menor (h:t) (h':t') = h < h' || menor t t'
 -- 36
 
 elemMSet ::  Eq a => a -> [(a,Int)] -> Bool
-elemMSet a [] = False
-elemMSet a ((x,n):xs) = a == x || elemMSet a xs
+elemMSet _ [] = False
+elemMSet a ((x,_):xs) = a == x || elemMSet a xs
+
+elemMSet' :: Eq a => a -> [(a,Int)] -> Bool
+elemMSet' = any . (. fst) . (==)
 
 -- 37
 
 lengthMSet ::  [(a,Int)] -> Int
 lengthMSet [] = 0
 lengthMSet ((x,n):xs) = n + lengthMSet xs
+
+lengthMSet' :: [(a,Int)] -> Int
+lengthMSet' = sum . map snd
 
 -- 38
 
@@ -469,8 +480,13 @@ vizinhos' (Pos x y) ((Pos xv yv):ps) = if abs (x - xv) == 1 && y == yv || abs (y
 -- 49
 
 mesmaOrdenada :: [Posicao] -> Bool
-mesmaOrdenada [Pos x y] = True
-mesmaOrdenada ((Pos x y):(Pos x2 y2):ps) = y == y2 && mesmaOrdenada (Pos x2 y2 : ps)
+mesmaOrdenada [] = True
+mesmaOrdenada [Pos _ _] = True
+mesmaOrdenada ((Pos _ y):(Pos x2 y2):ps) = y == y2 && mesmaOrdenada (Pos x2 y2 : ps)
+
+mesmaOrdenada' :: [Posicao] -> Bool
+mesmaOrdenada' [] = True
+mesmaOrdenada' (Pos _ y:t) = all ((==) y . (\(Pos _ yy) -> yy)) t 
 
 -- 50
 
