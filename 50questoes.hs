@@ -222,7 +222,8 @@ union' l (h:t)
 
 intersect' :: Eq a => [a] -> [a] -> [a]
 intersect' [] _ = []
-intersect' (h:t) l
+intersect' x@(h:t) l
+    | length l > length x = intersect' l x
     | h `elem` l = h:intersect' t l
     | otherwise = intersect' t l
 
