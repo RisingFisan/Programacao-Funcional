@@ -33,7 +33,7 @@ getKey = do a <- randomRIO (0,9)
 
 getGuess :: IO (Int,Int,Int,Int)
 getGuess = do x <- getLine
-              if length x /= 4 || not (and (map (isDigit) x)) 
+              if length x /= 4 || not $ all isDigit x
               then getGuess
               else return (let (a:b:c:d:resto) = x in (read [a],read [b],read [c],read [d]))
 
@@ -46,7 +46,7 @@ doGuess (n1,n2,n3,n4) = do
                     (if n2 /= g2 && g2 `elem` (listaNums \\ [g3,g4]) then 1 else 0) + 
                     (if n3 /= g3 && g3 `elem` (listaNums \\ [g4]) then 1 else 0) + 
                     (if n4 /= g4 && g4 `elem` (listaNums \\ []) then 1 else 0)
-    if numsC == 4 then print "Ganhaste, parabens!" else print $ "Valores corretos: " ++ show (numsC) ++ "   Valores no sitio errado: " ++ show (numsS)
+    if numsC == 4 then print "Ganhaste, parabens!" else print $ "Valores corretos: " ++ show numsC ++ "   Valores no sitio errado: " ++ show numsS
     if numsC == 4 then return () else doGuess (n1,n2,n3,n4)
 
 -- Exercicio 2
@@ -54,7 +54,7 @@ doGuess (n1,n2,n3,n4) = do
 data Aposta = Ap [Int] (Int,Int) deriving Show
     
 valida :: Aposta -> Bool
-valida (Ap (a:b:c:d:e:[]) (f,g)) = and [x `elem` [1..50] | x <- [a,b,c,d,e]] && and (map (\x -> x `elem` [1..12]) [f,g])
+valida (Ap (a:b:c:d:e:[]) (f,g)) = and [x `elem` [1..50] | x <- [a,b,c,d,e]] && all (\x -> x `elem` [1..12]) [f,g]
 valida _ = False
 
 comuns :: Aposta -> Aposta -> (Int,Int)
@@ -72,7 +72,7 @@ premio ap ch = case comuns ap ch of (5,n) -> Just (3 - n)
                                     (2,2) -> Just 8
                                     (1,2) -> Just 11
                                     (2,n) -> Just (13 - n)
-                                    otherwise -> Nothing
+                                    _ -> Nothing
 
 leAposta :: IO Aposta
 leAposta = do
@@ -80,16 +80,16 @@ leAposta = do
     nums <- getLine
     print "Introduza as estrelas (separadas por um espaco):"
     stars <- getLine
-    let bet = (Ap (map (read) (unspace nums)) (let (a:b:r) = (unspace stars) in (read a, read b)))
+    let bet = Ap (map read (unspace nums)) (let (a:b:r) = unspace stars in (read a, read b))
     if valida bet then return bet else do print "Aposta invalida, tente novamente!"; leAposta
 
 unspace :: String -> [String]
-unspace str = (map (Text.unpack) (Text.split (==' ') (Text.pack str)))
+unspace str = map Text.unpack (Text.split (==' ') (Text.pack str))
 
 joga :: Aposta -> IO ()
 joga ch = do
     ap <- leAposta
-    print ((++) ("Premio: ") $ show $ fromMaybe 0 (premio ap ch))
+    print ((++) "Premio: " $ show $ fromMaybe 0 (premio ap ch))
 
 geraChave :: IO Aposta
 geraChave = do
@@ -99,9 +99,8 @@ geraChave = do
 
 generate :: Char -> [Int] -> IO [Int]
 generate c l = do
-    n <- randomRIO (1,(if c == 'N' then 50 else 12))
-    if length l == 5 && c == 'N' then return l 
-    else if length l == 2 && c == 'S' then return l 
+    n <- randomRIO (1,if c == 'N' then 50 else 12)
+    if length l == 5 && c == 'N' || length l == 2 && c == 'S' then return l 
     else if n `elem` l then generate c l else generate c (n:l)
 
 main :: IO ()
@@ -119,8 +118,7 @@ ciclo ch = do
 menu :: IO String
 menu = do putStrLn menutxt
           putStr "Opcao: "
-          c <- getLine
-          return c
+          getLine
     where menutxt = unlines ["",
                              "Apostar ........... 1",
                              "Gerar nova chave .. 2",

@@ -22,12 +22,12 @@ enumFromThenTo' start next end
 
 -- 3
 
-concat'' :: [a] -> [a] -> [a]
-concat'' [] l = l
-concat'' (h:t) l = h:concat'' t l
+pp :: [a] -> [a] -> [a]
+pp [] l = l
+pp (h:t) l = h:pp t l
 
-concat_mini :: [a] -> [a] -> [a]
-concat_mini = flip $ foldr (:)
+pp' :: [a] -> [a] -> [a]
+pp' = flip $ foldr (:)
 
 -- 4
 
@@ -115,6 +115,11 @@ group' :: Eq a => [a] -> [[a]]
 group' [] = []
 group' (h:t) = (h:takeWhile (== h) t) : group' (dropWhile (== h) t)
 
+group2_electric_boogaloo :: Eq a => [a] -> [[a]]
+group2_electric_boogaloo [] = []
+group2_electric_boogaloo l = takeWhile (== h) l : group2_electric_boogaloo (dropWhile (== h) l)
+    where h = head l
+
 group'' :: Eq a => [a] -> [[a]]
 group'' [] = []
 group'' (x:xs) = (x:aux xs):aux2 xs
@@ -123,14 +128,22 @@ group'' (x:xs) = (x:aux xs):aux2 xs
           aux2 [] = []
           aux2 (z:zs) = if z == x then aux2 zs else group'' (z:zs)
 
+group''' :: Eq a => [a] -> [[a]]
+group''' [] = []
+group''' [x] = [[x]]
+group''' (h:t)
+    | h == head hr = (h : hr) : tr 
+    | otherwise = [h] : hr : tr
+    where (hr:tr) = group''' t
+
 -- 13
 
 concat' :: [[a]] -> [a]
 concat' [] = []
 concat' (h:t) = h ++ concat' t
 
-concat'_mini :: [[a]] -> [a]
-concat'_mini = foldr (++) []
+concat'' :: [[a]] -> [a]
+concat'' = foldr (++) []
 
 -- 14
 
@@ -139,16 +152,23 @@ inits' [] = [[]]
 inits' l = inits' (init l) ++ [l] 
 
 inits'' :: [a] -> [[a]]
+inits'' [] = [[]]
 inits'' [x] = [[],[x]]
 inits'' (x:xs) = [] : aux x (inits'' xs)
     where aux a (h:t) = (a:h):aux a t
           aux _ [] = []
+
+inits''' :: [a] -> [[a]]
+inits''' = scanl (flip (flip (++) . return)) []
 
 -- 15
 
 tails' :: [a] -> [[a]]
 tails' [] = [[]]
 tails' l = l : tails' (tail l)
+
+tails'' :: [a] -> [[a]]
+tails'' = scanr (:) []
 
 -- 16
 
@@ -299,7 +319,7 @@ posPares [x] = [x]
 posPares (h:s:t) = h:posPares t
 
 posPares' :: [a] -> [a]
-posPares' = map snd . filter (even . fst) . zip (iterate (+1) 0)
+posPares' = map snd . filter (even . fst) . zip [0..]
 
 -- 33
 

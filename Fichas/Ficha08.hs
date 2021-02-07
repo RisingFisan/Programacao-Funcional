@@ -11,7 +11,7 @@ instance Eq Frac where
     (F a b) == (F c d) = a * d == c * b
 
 instance Show Frac where
-    show (F a b) = show a ++ " / " ++ show b
+    show (F a b) = show a ++ "/" ++ show b
 
 instance Num Frac where
     -- (+), (*), (-) :: a -> a -> a
@@ -25,7 +25,7 @@ instance Num Frac where
     abs (F a b) = F (abs a) (abs b)
     signum (F a b) | a == 0 = 0
                    | a * b > 0 = 1
-                   | otherwise = (-1)
+                   | otherwise = -1
     fromInteger x = F x 1
 
 instance Ord Frac where
@@ -43,7 +43,7 @@ mdc :: Integer -> Integer -> Integer
 mdc a b = last [n | n <- [1..(min a b)] , a `mod` n == 0, b `mod` n == 0]
 
 maioresQueDobro :: Frac -> [Frac] -> [Frac]
-maioresQueDobro f l = filter (> 2 * f) l
+maioresQueDobro = filter . (<) . (2 *)
 
 -- Exercicio 2
 
@@ -68,7 +68,7 @@ valorDe (Menos a b) = valorDe a - valorDe b
 valorDe (Mult a b) = valorDe a * valorDe b
 
 instance (Num a,Eq a) => Eq (Exp a) where
-    x == y = valorDe x == (valorDe y)
+    x == y = valorDe x == valorDe y
 
 instance (Num a, Eq a) => Num (Exp a) where
     x + y = Const (valorDe x + valorDe y)
@@ -106,19 +106,19 @@ instance Ord Data where
                                                   | otherwise = LT
 
 instance Show Data where 
-    show (D dia mes ano) = concat $ intersperse "/" $ map (show) [dia,mes,ano]
+    show (D dia mes ano) = intercalate "/" $ map show [dia,mes,ano]
 
 ordena :: Extracto -> Extracto
-ordena (Ext n l) = (Ext n (sortBy (\(data1,_,_) (data2,_,_) -> compare data1 data2) l))
+ordena (Ext n l) = Ext n (sortBy (\(data1,_,_) (data2,_,_) -> compare data1 data2) l)
 
 instance Show Extracto where
     show (Ext n l) = "Saldo anterior: " ++ show n ++
                      "\n---------------------------------------" ++
                      "\nData       Descricao   Credito   Debito" ++
-                     "\n---------------------------------------\n" ++ concatMap (\(dat,str,mov) -> show dat ++ replicate (11 - (length (show dat))) ' ' ++ map (toUpper) str ++ "    \n") l ++
+                     "\n---------------------------------------\n" ++ concatMap (\(dat,str,_) -> show dat ++ replicate (11 - length (show dat)) ' ' ++ map toUpper str ++ "    \n") l ++
                      "---------------------------------------" ++
                      "\nSaldo actual: " ++ show (saldo (Ext n l))
 
 saldo :: Extracto -> Float
-saldo (Ext x lm) = foldl (\acc (_,_,mov) -> case mov of Credito n -> (acc + n)
-                                                        Debito n -> (acc - n)) x lm
+saldo (Ext x lm) = foldl (\acc (_,_,mov) -> case mov of Credito n -> acc + n
+                                                        Debito n -> acc - n) x lm

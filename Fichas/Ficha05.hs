@@ -55,7 +55,7 @@ calcula :: Float -> Polinomio -> Float
 calcula a = foldl (\acc (b,e) -> acc + b * (a ^ e)) 0
 
 simp :: Polinomio -> Polinomio
-simp = filter (\(b,e) -> e /= 0) 
+simp = filter (\(b,e) -> b /= 0) 
 
 mult :: Monomio -> Polinomio -> Polinomio
 mult (x,y) = map (\(b,e) -> (b*x,y+e))
@@ -70,5 +70,40 @@ normaliza ((b,e):ps) = (sum [bs | (bs,es) <- selgrau e ps] + b,e):normaliza [(bo
 soma :: Polinomio -> Polinomio -> Polinomio
 soma p r = normaliza $ (++) p r
 
-produto :: P
+produto :: Polinomio -> Polinomio -> Polinomio
 produto p1 p2 = foldl (\acc x -> soma (mult x p2) acc) [] p1
+
+equiv :: Polinomio -> Polinomio -> Bool
+equiv p1 p2 = null (simp (soma p1 (mult (-1,0) p2)))
+
+-- Exercicio 3
+
+type Mat a = [[a]]
+
+dimOK :: Mat a -> Bool
+dimOK (h:t) = all ((==) (length h) . length) t -- equivalente a `all (\x -> length h == length x) t`
+
+dimMat :: Mat a -> (Int, Int)
+dimMat m = (length m, (length . head) m)
+
+addMat :: Num a => Mat a -> Mat a -> Mat a
+addMat = zipWith (zipWith (+))
+
+transpose :: Mat a -> Mat a
+transpose m = [ [(m !! j) !! i | j <- [0..l-1] ] | i <- [0..c-1]]
+    where (l,c) = dimMat m
+
+multMat :: Num a => Mat a -> Mat a -> Mat a
+multMat m1 m2 = [ [ sum (zipWith (*) (m1 !! j) [ x !! i | x <- m2 ]) | i <- [0..c-1] ] | j <- [0..l-1] ]
+    where (l,_) = dimMat m1
+          (_,c) = dimMat m2
+
+zipWMat :: (a -> b -> c) -> Mat a -> Mat b -> Mat c
+zipWMat = zipWith . zipWith
+
+triSup :: Real a => Mat a -> Bool
+triSup = snd . foldl (\(acc1,acc2) line -> (acc1+1, all (== 0) (take acc1 line) && acc2)) (0,True)
+
+rotateLeft :: Mat a -> Mat a
+rotateLeft m = [ [ map (!! i) m !! j | j <- [0..l-1] ] | i <- [c-1,c-2..0]] 
+    where (l,c) = dimMat m
