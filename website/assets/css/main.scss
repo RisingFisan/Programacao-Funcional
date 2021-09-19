@@ -65,7 +65,7 @@ ol {
     .language-haskell {
         @apply bg-lighter-gray py-2 px-8 rounded-2xl;
         code {
-            @apply text-white;
+            @apply text-white inline-block w-full;
         }
     }
     h1 + .language-plaintext {
