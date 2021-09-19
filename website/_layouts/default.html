@@ -41,11 +41,11 @@ root: false
   <body>
     <div class="bg-darker-gray w-full min-h-screen text-white flex flex-col">
       <header class="bg-dark-gray p-8 lg:px-14 flex flex-col md:flex-row gap-6 justify-between items-center">
-        <div class="flex gap-10">
-          <a href={{ "/" | relative_url }}>
+        <div class="flex flex-col items-center sm:flex-row sm:items-start gap-5 sm:gap-10">
+          <a href={{ "/" | relative_url }} class="flex-none">
             <img src={{ "/Haskell-Logo.svg" | relative_url }} class="relative h-16 top-2 md:items-center">
           </a>
-          <div class="space-y-2">
+          <div class="space-y-2 text-center sm:text-left">
             <p class="text-4xl font-bold">Programação Funcional</p>
             <p class="text-lg font-light">Resolução de exercícios, fichas e testes.</p>
           </div>
