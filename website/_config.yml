@@ -1,4 +1,5 @@
 title: "Programação Funcional" # the name of your site, e.g. ACME Corp.
+baseurl: /programacao-funcional/website
 
 sass:
   load_paths:
