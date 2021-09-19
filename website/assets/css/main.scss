@@ -1,4 +1,13 @@
-@import "_sass/main.scss";
+---
+# this ensures Jekyll reads the file to be transformed into CSS later
+# only Main files contain this front matter, not partials.
+---
+
+@import "tailwindcss/base.css";
+@import "tailwindcss/components.css";
+@import "tailwindcss/utilities.css";
+
+@import "_sass/base.scss";
 
 code {
     white-space: pre-wrap;
