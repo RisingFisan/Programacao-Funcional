@@ -1,0 +1,72 @@
+---
+root: false
+---
+
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>{% unless page.title == empty %} {{ page.title | append: " |" }} {% endunless %} {{ site.title }}</title>
+    <link rel="stylesheet" href="{{ "/assets/css/main.css" | relative_url }}">
+    <link rel="shortcut icon" href="{{ "/favicon.ico" | prepend: site.baseurl | prepend: site.url }}" >
+    <script type="text/javascript">
+
+      // Wait for the page to load first
+      window.onload = function() {
+
+        //Get a reference to the link on the page
+        // with an id of "mylink"
+        var a = document.getElementById("code-overlay");
+        a.style.display = "flex";
+
+        //Set code to run when the link is clicked
+        // by assigning a function to "onclick"
+        a.onclick = function() {
+
+          // Your code here...
+          a.remove();
+
+          //If you don't want the link to actually 
+          // redirect the browser to another page,
+          // then return false at the end of this block.
+          // Note that this also prevents event bubbling,
+          // which is probably what we want here, but won't 
+          // always be the case.
+          return false;
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="bg-darker-gray w-full min-h-screen text-white flex flex-col">
+      <header class="bg-dark-gray p-8 lg:px-14 flex flex-col md:flex-row gap-6 justify-between items-center">
+        <div class="flex gap-10">
+          <a href="/">
+            <img src="/Haskell-Logo.svg" class="relative h-16 top-2 md:items-center">
+          </a>
+          <div class="space-y-2">
+            <p class="text-4xl font-bold">Programação Funcional</p>
+            <p class="text-lg font-light">Resolução de exercícios, fichas e testes.</p>
+          </div>
+        </div>
+        {% unless page.root %}
+          <div class="flex gap-3 md:gap-6 justify-end items-center flex-col lg:flex-row w-full md:w-auto">
+            <a href="/50q/index.html" class="bg-purple-800 hover:bg-purple-600 p-5 w-full sm:w-1/2 md:w-36 flex justify-center items-center rounded-xl">
+              <p class="uppercase font-bold">50 Questões</p>
+            </a>
+            <a href="/fichas/index.html" class="bg-purple-800 hover:bg-purple-600 p-5 w-full sm:w-1/2 md:w-36 flex justify-center items-center rounded-xl">
+              <p class="uppercase font-bold">Fichas</p>
+            </a>
+          </div>
+        {% endunless %}
+      </header>
+      <div class="px-3 py-10 sm:p-20 flex-grow">
+      {{ content }}
+      </div>
+      <footer class="bg-dark-gray p-8 lg:px-14 flex flex-col md:flex-row gap-6 justify-between items-center justify-self-end">
+        <p>Made with 💜 by <a href="https://github.com/RisingFisan" target="_blank" rel="noopener noreferrer">RisingFisan</a>.</p>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+---
+---
+
+@import "_sass/main.scss";
+
+code {
+    white-space: pre-wrap;
+}
+
+code > .o {
+    @apply text-purple-400;
+}
+
+code > .kr {
+    @apply text-purple-400;
+}
+
+code > .p {
+    @apply text-blue-300;
+}
+
+code > .c1 {
+    @apply text-lightest-gray;
+}
+
+.explanation code {
+    @apply text-purple-300;
+}
+
+.explanation .language-haskell {
+    @apply bg-lighter-gray p-2 px-8 rounded-2xl;
+    code {
+        @apply text-white;
+    }
+}
+
+p > a {
+    @apply text-purple-400;
+}
+
+ul {
+    @apply list-disc list-inside;
+}
+
+ol {
+    @apply list-lower-latin;
+}
+
+#resolution {
+    h1 {
+        @apply text-xl;
+    }
+    h1 + ul {
+        @apply text-xl ml-5;
+    }
+    h2 {
+        @apply text-lg font-light ml-12 mt-5 mb-2;
+    }
+    .language-haskell {
+        @apply bg-lighter-gray py-2 px-8 rounded-2xl;
+        code {
+            @apply text-white;
+        }
+    }
+    h1 + .language-plaintext {
+        @apply text-xl;
+    }
+    h2 + .language-plaintext {
+        @apply text-lg font-light ml-12 mb-2;
+    }
+    .language-plaintext + h2 {
+        @apply mt-0;
+    }
+    code {
+        @apply text-purple-300;
+    }
+    div + h1 {
+        @apply mt-16;
+    }
+    .language-plaintext + h1 {
+        @apply mt-0;
+    }
+}

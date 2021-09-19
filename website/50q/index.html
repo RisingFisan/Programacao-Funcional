@@ -1,0 +1,17 @@
+---
+title: "50 Questões"
+layout: "default"
+---
+
+<div class="flex flex-col items-center gap-12">
+  <h1 class="text-4xl">50 Questões</h1>
+  <div class="bg-light-gray shadow-lg p-6 rounded-2xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-5">
+      {% for i in (1..50) %}
+      <a href="{{ i }}" title="{{site.data.fifty_q[i].function}}" class="text-2xl md:text-xl xl:text-2xl bg-lighter-gray hover:bg-purple-600 shadow-md flex justify-start items-center px-5 py-3 rounded-full">
+        <p>{{ i }}: {{ site.data.fifty_q[i].function }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
