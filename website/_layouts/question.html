@@ -15,16 +15,20 @@ layout: default
     </div>
     <div class="flex gap-5">
       {% unless page.i == 1 %} 
-        <a href="/50q/{{ page.i | minus: 1 }}" class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
+        {% assign prev_page = page.i | minus: 1 %}
+        {% assign prev_page_url = prev_page | prepend: "/50q/" %}
+        <a href={{ prev_page_url | relative_url }} class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
           <p class="text-2xl font-bold"><</p>
           <p>Anterior</p>
         </a>
       {% endunless %}
       {% unless page.i == 50 %} 
-      <a href="/50q/{{ page.i | plus: 1 }}" class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
-        <p class="text-2xl font-bold">></p>
-        <p>Seguinte</p>
-      </a>
+      {% assign next_page = page.i | plus: 1 %}
+        {% assign next_page_url = next_page | prepend: "/50q/" %}
+        <a href={{ next_page_url | relative_url }} class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
+          <p class="text-2xl font-bold">></p>
+          <p>Seguinte</p>
+        </a>
       {% endunless %}
     </div>
   </div>
