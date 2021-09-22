@@ -69,16 +69,19 @@ ol {
         }
     }
     h1 + .language-plaintext {
-        @apply text-xl;
+        @apply text-xl ml-6 my-6;
     }
     h2 + .language-plaintext {
-        @apply text-lg font-light ml-12 mb-2;
+        @apply text-lg font-light ml-20 mb-2;
     }
     .language-plaintext + h2 {
         @apply mt-0;
     }
     code {
         @apply text-purple-300;
+    }
+    h1 + code, h2 + code {
+        @apply pl-6;
     }
     div + h1 {
         @apply mt-16;

@@ -10,13 +10,15 @@ type Viagem = [Etapa]
 
 # Por exemplo, se uma viagem for
 
-# `[(H 9 30, H 10 25), (H 11 20, H 12 45), (H 13 30, H 14 45)]`
+```
+[(H 9 30, H 10 25), (H 11 20, H 12 45), (H 13 30, H 14 45)]
+```
 
 # significa que teve três etapas:
 
-- # a primeira começou às 9 e um quarto e terminou às 10 e 25;
-- # a segunda começou às 11 e 20 e terminou à uma menos um quarto;
-- # a terceira começou às 1 e meia e terminou às 3 menos um quarto;
+- a primeira começou às 9 e um quarto e terminou às 10 e 25;
+- a segunda começou às 11 e 20 e terminou à uma menos um quarto;
+- a terceira começou às 1 e meia e terminou às 3 menos um quarto;
 
 # Para este problema, vamos trabalhar apenas com viagens que começam e acabam no mesmo dia. Utilizando as funções sobre horas que definiu na Ficha 1, defina as seguintes funções:
 
@@ -71,7 +73,9 @@ tempoTotalViagem v = addMins (tempoDeViagem v) (hour2min (tempoDeEspera v))
 
 # 2) Considere as seguinte definição de um tipo para representar linhas poligonais.
 
-# `type Poligonal = [Ponto]`
+```
+type Poligonal = [Ponto]
+```
 
 # O tipo `Ponto` é idêntico ao definido na Ficha 1. Nas resolução das alíneas seguintes pode utilizar funções definidas nessa ficha.
 
