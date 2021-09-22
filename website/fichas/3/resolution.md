@@ -1,376 +1,293 @@
-# 1) Usando as seguintes funções pré-definidas do Haskell:
+# 1) Assumindo que uma hora é representada por um par de inteiros, uma viagem pode ser representada por uma sequência de etapas, onde cada etapa é representada por um par de horas (partida, chegada):
 
-- `length l`: o número de elementos da lista `l`
-- `head l`: a cabeça da lista (não vazia) `l`
-- `tail l`: a cauda da lista (não vazia) `l`
-- `last l`: o último elemento da lista (não vazia) `l`
-- `sqrt x`: a raiz quadrada de `x`
-- `div x y`: a divisão inteira de `x` por `y`
-- `mod x y`: o resto da divisão inteira de `x` por `y`
+```
+data Hora = H Int Int
+            deriving Show
 
-# Defina as seguintes funções e os respetivos tipos:
-
-## a) `perimetro` - que calcula o perímetro de uma circunferência, dado o comprimento do seu raio.
-
-```haskell
-perimetro :: Double -> Double
-perimetro x = 2 * pi * x
+type Etapa = (Hora,Hora)
+type Viagem = [Etapa]
 ```
 
-## b) `dist` - que calcula a distância entre dois pontos no plano Cartesiano. Cada ponto é um par de valores do tipo `Double`.
+# Por exemplo, se uma viagem for
+
+# `[(H 9 30, H 10 25), (H 11 20, H 12 45), (H 13 30, H 14 45)]`
+
+# significa que teve três etapas:
+
+- # a primeira começou às 9 e um quarto e terminou às 10 e 25;
+- # a segunda começou às 11 e 20 e terminou à uma menos um quarto;
+- # a terceira começou às 1 e meia e terminou às 3 menos um quarto;
+
+# Para este problema, vamos trabalhar apenas com viagens que começam e acabam no mesmo dia. Utilizando as funções sobre horas que definiu na Ficha 1, defina as seguintes funções:
+
+## a) Testar se uma etapa está bem construída (i.e., o tempo de chegada é superior ao de partida e as horas são válidas).
 
 ```haskell
-dist :: (Double, Double) -> (Double, Double) -> Double
-dist (x1, y1) (x2, y2) = sqrt(dx ^ 2 + dy ^ 2) 
-    where dx = x1 - x2
-          dy = y1 - y2
+etapaBemConstruida :: Etapa -> Bool
+etapaBemConstruida (h1,h2) = horaValida h1 && horaValida h2 && h2 `horaDepois` h1
 ```
 
-## c) `primUlt` - que recebe uma lista e devolve um par com o primeiro e o último elemento dessa lista.
+## b) Testa se uma viagem está bem construída (i.e., se para cada etapa, o tempo de chegada é superior ao de partida, e se a etapa seguinte começa depois da etapa anterior ter terminado).
 
 ```haskell
-primUlt :: [a] -> (a, a)
-primUlt l = (head l, last l)
+viagemBemConstruida :: Viagem -> Bool
+viagemBemConstruida [] = True
+viagemBemConstruida [e] = etapaBemConstruida e
+viagemBemConstruida ((h1,h2):(h3,h4):et) = etapaBemConstruida (h1,h2) && etapaBemConstruida (h2,h3) && viagemBemConstruida ((h3,h4):et)
+
+-- Precisamos de pelo menos duas etapas na definição recursiva pois precisamos de comparar o tempo de fim da primeira etapa com o tempo de início da segunda etapa.
 ```
 
-## d) `multiplo` - tal que `multiplo m n` testa se o número inteiro `m` é múltiplo de `n`.
+## c) Calcular a hora de partida e de chegada de uma dada viagem.
 
 ```haskell
-multiplo :: Int -> Int -> Bool
-multiplo x y = mod x y == 0
+partidaEChegada :: Viagem -> (F1.Hora,F1.Hora)
+partidaEChegada [(h1,h2)] = (h1,h2)
+partidaEChegada ((h1,_):(_,h4):et) = partidaEChegada ((h1,h4):et) 
 ```
 
-## e) `truncaImpar` – que recebe uma lista e, se o comprimento da lista for ímpar, retira-lhe o primeiro elemento, caso contrário devolve a própria lista.
+## d) Dada uma viagem válida, calcular o tempo total de viagem efectiva.
 
 ```haskell
-truncaImpar :: [a] -> [a]
-truncaImpar l = if even (length l) then l else tail l 
+tempoDeViagem :: Viagem -> Hora
+tempoDeViagem [(h1,h2)] = hourDiff h1 h2
+tempoDeViagem ((h1,h2):et) = addMins (hourDiff h1 h2) (hour2min(tempoDeViagem et))
 ```
 
-## f) `max2` – que calcula o maior de dois números inteiros.
+## e) Calcular o tempo total de espera.
 
 ```haskell
-max2 :: Ord p => p -> p -> p
-max2 x y = if x > y then x else y
+tempoDeEspera :: Viagem -> Hora
+tempoDeEspera [(h1,h2)] = H 0 0
+tempoDeEspera ((h1,h2):(h3,h4):et) = addMins (hourDiff h2 h3) (hour2min (tempoDeEspera ((h3,h4):et)))
 ```
 
-## g) `max3` – que calcula o maior de três números inteiros, usando a função `max2`.
+## f) Calcular o tempo total da viagem (a soma dos tempos de espera e de viagem efectiva).
 
 ```haskell
-max3 :: Ord p => p -> p -> p -> p
-max3 x y z = max2 (max2 x y) z
+tempoTotalViagem :: Viagem -> Hora
+tempoTotalViagem v = addMins (tempoDeViagem v) (hour2min (tempoDeEspera v))
 ```
 
-# 2) Defina as seguintes funções sobre polinómios de 2º grau:
+# 2) Considere as seguinte definição de um tipo para representar linhas poligonais.
 
-## a) A função nRaizes que recebe os (3) coeficientes de um polinómio de 2º grau e que calcula o número de raízes (reais) desse polinómio.
+# `type Poligonal = [Ponto]`
+
+# O tipo `Ponto` é idêntico ao definido na Ficha 1. Nas resolução das alíneas seguintes pode utilizar funções definidas nessa ficha.
+
+## a) Defina a função para calcular o comprimento de uma linha poligonal
 
 ```haskell
-nRaizes :: Double -> Double -> Double -> Int
-nRaizes a b c 
-    | delta > 0 = 2 
-    | delta == 0 = 1
-    | delta < 0 = 0 
-    where delta = b^2 - 4*a*c
+comprimento :: Poligonal -> Double
+comprimento p = case p of [] -> 0
+                          [_] -> 0
+                          (a:b:t) -> dist a b + comprimento (b:t)
 ```
 
-## b) A função raizes que, usando a função anterior, recebe os coeficientes do polinómio e calcula a lista das suas raízes reais.
+## b) Defina uma função para testar se uma dada linha poligonal é ou não fechada.
 
 ```haskell
-raizes :: Double -> Double -> Double -> [Double]
-raizes a b c 
-    | n == 2 = [x1, x2] 
-    | n == 1 = [x1] -- Neste caso x1 e x2 são iguais, por isso podemos devolver apenas um dos valores
-    | n == 0 = [] 
-    where n = nRaizes a b c
-          delta = b^2 - 4*a*c
-          (x1,x2) = (((-b) + sqrt delta)/ (2*a), ((-b) - sqrt delta)/ (2*a))
+linhaFechada :: Poligonal -> Bool
+linhaFechada p = length p >= 3 && head p == last p
+
+-- Escrever `head p == last p` e `dist (head p) (last p) == 0` deverá ser equivalente. Neste caso só podemos escrever da primeira forma porque o tipo `Ponto` deriva a classe `Eq`, permitindo-nos assim verificar a equivalência de valores deste tipo com a função `(==)`.
 ```
 
-# 3) Vamos representar horas por um par de números inteiros:
-
-# `type Hora = (Int,Int)`
-
-# Assim o par `(0,15)` significa _meia noite e um quarto_ e `(13,45)` _duas menos um quarto_. Defina funções para:
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
+## c) Defina a função `triangula :: Poligonal -> [Figura]` que, dada uma linha poligonal fechada e convexa, calcule uma lista de triângulos cuja soma das áreas seja igual à àrea delimitada pela linha poligonal. O tipo `Figura` é idêntico ao definido na Ficha 1.
 
 ```haskell
-horaValida :: Hora -> Bool
-horaValida (h, m) = elem h [0..23] && elem m [0..59]
+triangula :: Poligonal -> [Figura]
+triangula [p1,p2,p3] = [Triangulo p1 p2 p3]
+triangula (p1:p2:p3:ps) = Triangulo p1 p2 p3 : triangula (p1:p3:ps)
+triangula _ = []
+
+-- Com esta função, criamos um leque de triângulos (https://pt.wikipedia.org/wiki/Leque_de_tri%C3%A2ngulos).
 ```
 
-## b) testar se uma hora é ou não depois de outra (comparação);
+## d) Defina uma função para calcular a área delimitada por uma linha poligonal fechada e convexa.
 
 ```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (h1, m1) (h2, m2) = h1 > h2 || (h1 == h2 && m1 > m2)
+areaPol :: Poligonal -> Double
+areaPol p = sum [area t | t <- triangula p]
+
+-- Aqui, dividimos o polígono em triângulos, calculamos a área de cada um e fazemos a soma destas áreas.
 ```
 
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
+## e) Defina a função `mover :: Poligonal -> Ponto -> Poligonal` que, dada uma linha poligonal e um ponto, dá como resultado uma linha poligonal idêntica à primeira mas tendo como ponto inicial o ponto dado.
 
 ```haskell
-hour2min :: Hora -> Int
-hour2min (h, m) = 60 * h + m
+mover :: Poligonal -> Ponto -> Poligonal
+mover pol p = p : pol
+```
+
+## a) Defina a função `zoom :: Double -> Poligonal -> Poligonal` que, dada um factor de escala e uma linha poligonal, dê como resultado uma linha poligonal semelhante e com o mesmo ponto inicial mas em que o comprimento de cada segmento de recta é multiplicado pelo factor dado.
+
+```haskell
+zoom :: Double -> Poligonal -> Poligonal
+zoom z [p1,p2] = [p1,multP z p2]
+zoom z (p1:p2:pol) = p1 : zoom z (p2' : pol)
+    where p2' = multP z p2
+zoom _ p = p
+
+multP :: Double -> Ponto -> Ponto
+multP z p = Cartesiano (z * posx p) (z * posy p)
+```
+
+# 3) Para armazenar uma agenda de contactos telefónicos e de correio electrónico definiram-se os seguintes tipos de dados. Não existem nomes repetidos na agenda e para cada nome existe uma lista de contactos.
+
+```
+data Contacto = Casa Integer
+              | Trab Integer
+              | Tlm Integer
+              | Email String
+              deriving Show
+
+type Nome = String
+type Agenda = [(Nome, [Contacto])]
+```
+
+## a) Defina a função `acrescEmail :: Nome -> String -> Agenda -> Agenda` que, dado um nome, um email e uma agenda, acrescenta essa informação à agenda.
+
+```haskell
+acrescEmail :: Nome -> String -> Agenda -> Agenda
+acrescEmail nome email agenda = agenda ++ [(nome, [Email email])]
+```
+
+## b) Defina a função `verEmails :: Nome -> Agenda -> Maybe [String]` que, dado um nome e uma agenda, retorna a lista dos emails associados a esse nome. Se esse nome não existir na agenda a função deve retornar `Nothing`.
+
+```haskell
+verEmails :: Nome -> Agenda -> Maybe [String]
+verEmails _ [] = Nothing
+verEmails nome [(n,c)] = if nome == n then Just [e | x@(Email e) <- c] else Nothing
+verEmails nome ((n,c):agenda) = if nome == n then verEmails nome [(n,c)] else verEmails nome agenda
+```
+
+## c) Defina a função `consTelefs :: [Contacto] -> [Integer]` que, dada uma lista de contactos, retorna a lista de todos os números de telefone dessa lista (tanto telefones fixos como telemóveis).
+
+```haskell
+consTelefs :: [Contacto] -> [Integer]
+consTelefs [] = []
+consTelefs (c:cs) = case c of Casa x -> x:consTelefs cs
+                              Trab x -> x:consTelefs cs
+                              Tlm x -> x:consTelefs cs 
+                              _ -> consTelefs cs
 ``` 
 
-## d) converter um valor em minutos para horas;
+## d) Defina a função `casa :: Nome -> Agenda -> Maybe Integer` que, dado um nome e uma agenda, retorna o número de telefone de casa (caso exista).
 
 ```haskell
-min2hour :: Int -> Hora
-min2hour min = (div min 60, mod min 60)
+casa :: Nome -> Agenda -> Maybe Integer
+casa _ [] = Nothing
+casa nome [(n,c:cs)] = if nome == n 
+                       then case c of Casa x -> Just x
+                                      _ -> casa nome [(n,cs)] 
+                       else Nothing
+casa nome ((n,c):agenda) = if nome == n 
+                           then casa nome [(n,c)]
+                           else casa nome agenda
 ``` 
 
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
+# 4) Pretende-se guardar informação sobre os aniversários das pessoas numa tabela que associa o nome de cada pessoa à sua data de nascimento. Para isso, declarou-se a seguinte estrutura de dados:
+
+```
+type Dia = Int
+type Mes = Int
+type Ano = Int
+type Nome = String
+
+data Data = D Dia Mes Ano
+    deriving Show
+
+type TabDN = [(Nome,Data)]
+```
+
+## a) Defina a função `procura :: Nome -> TabDN -> Maybe Data` que indica a data de nascimento de uma dada pessoa, caso o seu nome exista na tabela.
 
 ```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
+procura :: Nome -> TabDN -> Maybe Data
+procura _ [] = Nothing
+procura nome ((n,d):ts) = if nome == n then Just d else procura nome ts
+```
+
+## b) Defina a função `idade :: Data -> Nome -> TabDN -> Maybe Int` que calcula a idade de uma pessoa numa dada data.
+
+```haskell
+idade :: Data -> Nome -> TabDN -> Maybe Int
+idade _ _ [] = Nothing
+idade data@(D dx mx ax) nome ((n,D d m a):ts) = if nome == n then if mx > m || mx == m && dx > d then Just (ax - a) else Just ((ax - a) - 1) else idade data nome ts
+```
+
+## c) Defina a função `anterior :: Data -> Data -> Bool` que testa se uma data é anterior a outra data.
+
+```haskell
+anterior :: Data -> Data -> Bool
+anterior (D d m a) (D d2 m2 a2) = a < a2 || (a == a2 && (m < m2 || (m == m2 && d < d2)))
 ``` 
 
-## f) adicionar um determinado número de minutos a uma dada hora;
+## d) Defina a função `ordena :: TabDN -> TabDN` que ordena uma tabela de datas de nascimento por ordem crescente das datas de nascimento.
 
 ```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
+ordena :: TabDN -> TabDN
+ordena [] = []
+ordena ((n,d):ts) = insere (n,d) (ordena ts)
+    where insere (n,d) [] = [(n,d)]
+          insere (n,d) ((nh,dh):t) | anterior dh d = (nh,dh):insere (n,d) t
+                                   | otherwise = (n,d):(nh,dh):t
 ``` 
 
-# 4) Repita o exercício anterior assumindo agora que as horas são representadas por um novo tipo de dados:
-
-# `data Hora = H Int Int deriving (Show,Eq)`
-
-# Com este novo tipo a hora _meia noite e um quarto_ é representada por `H 0 15` e a hora _duas menos um quarto_ por `H 13 45`.
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
+## e) Defina a função `porIdade:: Data -> TabDN -> [(Nome,Int)]` que apresenta o nome e a idade das pessoas, numa dada data, por ordem crescente da idade das pessoas.
 
 ```haskell
-horaValida :: Hora -> Bool
-horaValida (H h m) = elem h [0..23] && elem m [0..59]
-```
-
-## b) testar se uma hora é ou não depois de outra (comparação);
-
-```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (H h1 m1) (H h2 m2) = h1 > h2 || (h1 == h2 && m1 > m2)
-```
-
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
-
-```haskell
-hour2min :: Hora -> Int
-hour2min (H h m) = 60 * h + m
+porIdade:: Data -> TabDN -> [(Nome,Int)]
+porIdade _ [] = []
+porIdade (D d m a) tabela = (n,idade) : porIdade (D d m a) ts
+    where ((n,D dx mx ax):ts) = ordena tabela
+          idade = if m > mx || mx == m && d > dx then a - ax else (a - ax) - 1
 ``` 
 
-## d) converter um valor em minutos para horas;
+# 5) Considere o seguinte tipo de dados que descreve a informação de um extracto bancário. Cada valor deste tipo indica o saldo inicial e uma lista de movimentos. Cada movimento é representado por um triplo que indica a data da operação, a sua descrição e a quantia movimentada (em que os valores são sempre números positivos).
 
-```haskell
-min2hour :: Int -> Hora
-min2hour min = H (div min 60) (mod min 60)
 ``` 
+data Movimento = Credito Float | Debito Float
+    deriving Show
 
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
+data Data = D Int Int Int
+    deriving Show
+
+data Extracto = Ext Float [(Data, String, Movimento)]
+    deriving Show
+```
+
+## a) Construa a função `extValor :: Extracto -> Float -> [Movimento]` que produz uma lista de todos os movimentos (créditos ou débitos) superiores a um determinado valor.
 
 ```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
-``` 
+extValor :: Extracto -> Float -> [Movimento]
+extValor (Ext _ []) _ = []
+extValor (Ext x ((_,_,mov):ls)) valor = if n >= valor then mov : extValor (Ext x ls) valor else extValor (Ext x ls) valor
+    where n = case mov of Credito x -> x
+                          Debito x -> x
+```
 
-## f) adicionar um determinado número de minutos a uma dada hora;
+## b) Defina a função `filtro :: Extracto -> [String] -> [(Data,Movimento)]` que retorna informação relativa apenas aos movimentos cuja descrição esteja incluída na lista fornecida no segundo parâmetro.
 
 ```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
-``` 
+filtro :: Extracto -> [String] -> [(Data,Movimento)]
+filtro (Ext _ []) _ = []
+filtro (Ext x ((dat,desc,mov):ls)) listaStr = if desc `elem` listaStr then (dat,mov) : filtro (Ext x ls) listaStr else filtro (Ext x ls) listaStr
+```
 
-# 5) Considere o seguinte tipo de dados para representar os possíveis estados de um semáforo:
-
-# `data Semaforo = Verde | Amarelo | Vermelho deriving (Show, Eq)`
-
-## a) Defina a função `next :: Semaforo -> Semaforo` que calcula o próximo estado de um semáforo.
+## c) Defina a função `creDeb :: Extracto -> (Float,Float)` que retorna o total de créditos e de débitos de um extracto no primeiro e segundo elementos de um par, respectivamente.
 
 ```haskell
-next :: Semaforo -> Semaforo
-next s = case s of Verde -> Amarelo
-                   Amarelo -> Vermelho
-                   Vermelho -> Verde
+creDeb :: Extracto -> (Float,Float)
+creDeb (Ext _ lm) = foldl (\(c,d) (_,_,mov) -> case mov of Credito x -> (c + x, d)
+                                                           Debito x -> (c, d + x)) (0,0) lm
 ```
 
-## b) Defina a função `stop :: Semaforo -> Bool` que determina se é obrigatório parar num semáforo.
+## a) Defina a função `saldo :: Extracto -> Float` que devolve o saldo final que resulta da execução de todos os movimentos no extracto sobre o saldo inicial.
 
 ```haskell
-stop :: Semaforo -> Bool
-stop s = s == Vermelho
-```
-
-## c) Defina a função `safe :: Semaforo -> Semaforo -> Bool` que testa se o estado de dois semáforos num cruzamento é seguro.
-
-```haskell
-safe :: Semaforo -> Semaforo -> Bool
-safe s1 s2 = s1 == Vermelho || s2 == Vermelho
-```
-
-# 6) Um ponto num plano pode ser representado por um sistema de coordenadas Cartesiano (distâncias aos eixos vertical e horizontal) ou por um sistema de coordenadas Polar (distância à origem e ângulo do respetivo vector com o eixo horizontal).
-
-# `data Ponto = Cartesiano Double Double | Polar Double Double deriving (Show,Eq)`
-
-# Com este tipo o ponto Cartesiano (-1) 0 pode alternativamente ser representado por Polar 1 pi. Defina as seguintes funções:
-
-## a) `posx :: Ponto -> Double` que calcula a distância de um ponto ao eixo vertical.
-
-```haskell
-posx :: Ponto -> Double
-posx ponto = case ponto of Cartesiano x _ -> x
-                           Polar d a -> if a == pi/2 then 0 else d * cos a
--- Utilizamos aqui um `if` porque `cos (pi/2)` não dá exatamente 0, devido à forma como os valores do tipo Double são armazenados no computador.
-```
-
-## b) `posy :: Ponto -> Double` que calcula a distância de um ponto ao eixo horizontal.
-
-```haskell
-posy :: Ponto -> Double
-posy ponto = case ponto of Cartesiano _ y -> y
-                           Polar d a -> if a == pi then 0 else d * sin a
-```
-
-## c) `raio :: Ponto -> Double` que calcula a distância de um ponto à origem.
-
-```haskell
-raio :: Ponto -> Double
-raio ponto = case ponto of Cartesiano x y -> sqrt (x^2 + y^2)
-                           Polar d _ -> d
-```
-
-## d) `angulo :: Ponto -> Double` que calcula o ângulo entre o vector que liga a origem a um ponto e o eixo horizontal.
-
-```haskell
-angulo :: Ponto -> Double
-angulo ponto = case ponto of Cartesiano x y -> if x < 0 && y == 0 then pi else
-                                               if x < 0 then pi + atan (y/x) else
-                                               atan (y/x)
-                             Polar _ a -> a
-```
-
-## e) `dist :: Ponto -> Ponto -> Double` que calcula a distância entre dois pontos.
-
-```haskell
-dist :: Ponto -> Ponto -> Double
-dist ponto1 ponto2 = sqrt (((posx ponto1 - posx ponto2) ^ 2) + (posy ponto1 - posy ponto2) ^ 2)
-```
-
-
-# 7) Considere o seguinte tipo de dados para representar figuras geométricas num plano.
-
-```
-data Figura = Circulo Ponto Double
-            | Rectangulo Ponto Ponto
-            | Triangulo Ponto Ponto Ponto
-              deriving (Show,Eq)
-```
-
-# Uma figura pode ser um círculo centrado um determinado ponto e com um determinado raio, um retângulo paralelo aos eixos representado por dois pontos que são vértices da sua diagonal, ou um triângulo representado pelos três pontos dos seus vértices. Defina as seguintes funções:
-
-## a) Defina a função `poligono :: Figura -> Bool` que testa se uma figura é um polígono.
-
-```haskell
-poligono :: Figura -> Bool
-poligono (Circulo c r) = False
-poligono (Retangulo p1 p2) = posx p1 /= posx p2 && posy p1 /= posy p2 -- Verifica que os pontos não têm o mesmo valor de x ou y
-poligono (Triangulo p1 p2 p3) = (posy p2 - posy p1) / (posx p2 - posx p1) /= (posy p3 - posy p2) / (posx p3 - posx p2) -- Verifica que os pontos não pertencem todos à mesma reta
-```
-
-## b) Defina a função `vertices :: Figura -> [Ponto]` que calcula a lista dos vertices de uma figura.
-
-```haskell
-vertices :: Figura -> [Ponto]
-vertices (Circulo _ _) = []
-vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, Cartesiano (posx p1) (posy p2), Cartesiano (posx p2) (posy p1), p2] else []
-vertices triang@(Triangulo p1 p2 p3) = if poligono triang then [p1, p2, p3] else []
-```
-
-## c) Complete a seguinte definição cujo objectivo é calcular a área de uma figura:
-
-```
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- formula de Heron
-```
-
-```haskell
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- fórmula de Heron
-area (Circulo _ r) = pi * (r ^ 2)
-area (Retangulo p1 p2) = abs (posx p2 - posx p1) * abs (posy p2 - posy p1) 
-```
-
-
-## d) Defina a função `perimetro :: Figura -> Double` que calcula o perímetro de uma figura.
-
-```haskell
-perimetro :: Figura -> Double
-perimetro (Circulo _ r) = 2 * pi * r
-perimetro (Retangulo p1 p2) = 2 * abs (posx p2 - posx p1) + 2 * abs (posy p2 - posy p1)
-perimetro (Triangulo p1 p2 p3) = dist p1 p2 + dist p2 p3 + dist p1 p3
-```
-
-
-# 8) Utilizando as funções `ord :: Char -> Int` e `chr :: Int -> Char` do módulo Data.Char, defina as seguintes funções (note que todas estas funções já estão também pré-definidas nesse módulo):
-
-## a) `isLower :: Char -> Bool`, que testa se um `Char` é uma minúscula.
-
-```haskell
-isLower :: Char -> Bool
-isLower ch = ord ch >= ord 'a' && ord ch <= ord 'z'
-
--- Pode ser simplificado para:
-
-isLower' :: Char -> Bool
-isLower' ch = ch `elem` ['a'..'z']
-```
-
-## b) `isDigit :: Char -> Bool`, que testa se um `Char` é um dígito.
-
-```haskell
-isDigit :: Char -> Bool
-isDigit d = ord ch >= ord '0' && ord ch <= ord '9'
-```
-
-## c) `isAlpha :: Char -> Bool`, que testa se um `Char` é uma letra.
-
-```haskell
-isAlpha :: Char -> Bool
-isAlpha ch = isLower ch || isUpper ch
-    where isUpper ch = ord ch >= ord 'A' && ord ch <= ord 'Z'
-```
-
-## d) `toUpper :: Char -> Char`, que converte uma letra para a respectiva maiúscula.
-
-```haskell
-toUpper :: Char -> Char
-toUpper ch = if isLower ch then chr (ord ch - 32) else ch
--- 32 é o resultado de `ord 'a' - ord 'A'`
-```
-
-## e) `intToDigit :: Int -> Char`, que converte um número entre 0 e 9 para o respetivo dígito.
-
-```haskell
-intToDigit :: Int -> Char
-intToDigit n = chr (n + 48)
--- 48 é o resultado de `ord '0' - 0`
-```
-
-## f) `digitToInt :: Char -> Int`, que converte um dígito para o respetivo inteiro.
-
-```haskell
-digitToInt :: Char -> Int 
-digitToInt ch = ord ch - 48
+saldo :: Extracto -> Float
+saldo (Ext x lm) = foldl (\acc (_,_,mov) -> case mov of Credito n -> acc + n
+                                                        Debito n -> acc - n) x lm
 ```
