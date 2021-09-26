@@ -1,376 +1,249 @@
-# 1) Usando as seguintes funções pré-definidas do Haskell:
+# 1) Apresente definições das seguintes funções de ordem superior, já pré-definidas no `Prelude` ou no `Data.List`:
 
-- `length l`: o número de elementos da lista `l`
-- `head l`: a cabeça da lista (não vazia) `l`
-- `tail l`: a cauda da lista (não vazia) `l`
-- `last l`: o último elemento da lista (não vazia) `l`
-- `sqrt x`: a raiz quadrada de `x`
-- `div x y`: a divisão inteira de `x` por `y`
-- `mod x y`: o resto da divisão inteira de `x` por `y`
-
-# Defina as seguintes funções e os respetivos tipos:
-
-## a) `perimetro` - que calcula o perímetro de uma circunferência, dado o comprimento do seu raio.
+## a) `any :: (a -> Bool) -> [a] -> Bool` que teste se um predicado é verdade para algum elemento de uma lista; por exemplo: `any odd [1..10] == True`.
 
 ```haskell
-perimetro :: Double -> Double
-perimetro x = 2 * pi * x
+any :: (a -> Bool) -> [a] -> Bool
+any f [] = False
+any f (h:t) = f h || any f t
 ```
 
-## b) `dist` - que calcula a distância entre dois pontos no plano Cartesiano. Cada ponto é um par de valores do tipo `Double`.
+## b) `zipWith :: (a->b->c) -> [a] -> [b] -> [c]` que combina os elementos de duas listas usando uma função específica; por exemplo: `zipWith (+) [1,2,3,4,5] [10,20,30,40] == [11,22,33,44]`.
 
 ```haskell
-dist :: (Double, Double) -> (Double, Double) -> Double
-dist (x1, y1) (x2, y2) = sqrt(dx ^ 2 + dy ^ 2) 
-    where dx = x1 - x2
-          dy = y1 - y2
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith f (a:as) (b:bs) = f a b : zipWith f as bs
+zipWith _ _ _ = []
 ```
 
-## c) `primUlt` - que recebe uma lista e devolve um par com o primeiro e o último elemento dessa lista.
+## c) `takeWhile :: (a->Bool) -> [a] -> [a]` que determina os primeiros elementos da lista que satisfazem um dado predicado; por exemplo: `takeWhile odd [1,3,4,5,6,6] == [1,3]`.
 
 ```haskell
-primUlt :: [a] -> (a, a)
-primUlt l = (head l, last l)
+takeWhile :: (a -> Bool) -> [a] -> [a]
+takeWhile _ [] = []
+takeWhile f (h:t) | f h = h : takeWhile f t
+                  | otherwise = []
 ```
 
-## d) `multiplo` - tal que `multiplo m n` testa se o número inteiro `m` é múltiplo de `n`.
+## d) `dropWhile :: (a->Bool) -> [a] -> [a]` que elimina os primeiros elementos da lista que satisfazem um dado predicado; por exemplo: `dropWhile odd [1,3,4,5,6,6] == [4,5,6,6]`.
 
 ```haskell
-multiplo :: Int -> Int -> Bool
-multiplo x y = mod x y == 0
+dropWhile :: (a -> Bool) -> [a] -> [a]
+dropWhile _ [] = []
+dropWhile f (h:t) | f h = dropWhile f t
+                  | otherwise = t
 ```
 
-## e) `truncaImpar` – que recebe uma lista e, se o comprimento da lista for ímpar, retira-lhe o primeiro elemento, caso contrário devolve a própria lista.
+## e) `span :: (a-> Bool) -> [a] -> ([a],[a])` que calcula simultaneamente os dois resultados anteriores. Note que apesar de poder ser definida à custa das outras duas, usando a definição:
+
+## `span p l = (takeWhile p l, dropWhile p l)`
+
+## nessa definição há trabalho redundante que pode ser evitado. Apresente uma definição alternativa onde não haja duplicação de trabalho.
 
 ```haskell
-truncaImpar :: [a] -> [a]
-truncaImpar l = if even (length l) then l else tail l 
+span :: (a-> Bool) -> [a] -> ([a],[a])
+span _ [] = ([],[])
+span f (h:t) | f h = (h:s1,s2)
+             | otherwise = ([],h:t)
+    where (s1,s2) = span f t 
 ```
 
-## f) `max2` – que calcula o maior de dois números inteiros.
+## f) deleteBy :: (a -> a -> Bool) -> a -> [a] -> [a] que apaga o primeiro elemento de uma lista que é “igual” a um dado elemento de acordo com a função de comparação que é passada como parâmetro. Por exemplo: `deleteBy (\x y -> snd x == snd y) (1,2) [(3,3),(2,2),(4,2)]`.
 
 ```haskell
-max2 :: Ord p => p -> p -> p
-max2 x y = if x > y then x else y
+deleteBy :: (a -> a -> Bool) -> a -> [a] -> [a]
+deleteBy f x (h:t) | f x h = t
+                   | otherwise = h : deleteBy f x t
 ```
 
-## g) `max3` – que calcula o maior de três números inteiros, usando a função `max2`.
+## g) sortOn :: Ord b => (a -> b) -> [a] -> [a] que ordena uma lista comparando os resultados de aplicar uma função de extração de uma chave a cada elemento de uma lista. Por exemplo: `sortOn fst [(3,1),(1,2),(2,5)] == [(1,2),(2,5),(3,1)]`.
 
 ```haskell
-max3 :: Ord p => p -> p -> p -> p
-max3 x y z = max2 (max2 x y) z
+sortOn :: (Ord b) => (a -> b) -> [a] -> [a]
+sortOn f [] = []
+sortOn f (h:t) = insere h (sortOn f t)
+    where insere x [] = [x]
+          insere x (a:b) = if f x > f a then a:insere x b else x:a:b
 ```
 
-# 2) Defina as seguintes funções sobre polinómios de 2º grau:
+# 2) Relembre a questão sobre polinómios introduzida na Ficha 3, onde um polinómio era representado por uma lista de monómios representados por pares _(coeficiente, expoente)_
 
-## a) A função nRaizes que recebe os (3) coeficientes de um polinómio de 2º grau e que calcula o número de raízes (reais) desse polinómio.
-
-```haskell
-nRaizes :: Double -> Double -> Double -> Int
-nRaizes a b c 
-    | delta > 0 = 2 
-    | delta == 0 = 1
-    | delta < 0 = 0 
-    where delta = b^2 - 4*a*c
+```
+type Polinomio = [Monomio]
+type Monomio = (Float,Int)
 ```
 
-## b) A função raizes que, usando a função anterior, recebe os coeficientes do polinómio e calcula a lista das suas raízes reais.
+# Por exemplo, `[(2,3), (3,4), (5,3), (4,5)]` representa o polinómio 2x<sup>3</sup> + 3x<sup>4</sup> + 5x<sup>3</sup> + 4x<sup>5</sup>. Redefina as funções pedidas nessa ficha, usando agora funções de ordem superior (definidas no `Prelude` ou no `Data.List`) em vez de recursividade explícita:
+
+## a) `selgrau :: Int -> Polinomio -> Polinomio` que seleciona os monómios com um dado grau de um polinómio.
 
 ```haskell
-raizes :: Double -> Double -> Double -> [Double]
-raizes a b c 
-    | n == 2 = [x1, x2] 
-    | n == 1 = [x1] -- Neste caso x1 e x2 são iguais, por isso podemos devolver apenas um dos valores
-    | n == 0 = [] 
-    where n = nRaizes a b c
-          delta = b^2 - 4*a*c
-          (x1,x2) = (((-b) + sqrt delta)/ (2*a), ((-b) - sqrt delta)/ (2*a))
+selgrau :: Int -> Polinomio -> Polinomio
+selgrau n p = filter (\x -> snd x == n) p 
 ```
 
-# 3) Vamos representar horas por um par de números inteiros:
-
-# `type Hora = (Int,Int)`
-
-# Assim o par `(0,15)` significa _meia noite e um quarto_ e `(13,45)` _duas menos um quarto_. Defina funções para:
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
+## b) `conta :: Int -> Polinomio -> Int` de forma a que (conta n p) indica quantos monómios de grau n existem em p.
 
 ```haskell
-horaValida :: Hora -> Bool
-horaValida (h, m) = elem h [0..23] && elem m [0..59]
+conta :: Int -> Polinomio -> Int
+conta n p = length $ selgrau n p
 ```
 
-## b) testar se uma hora é ou não depois de outra (comparação);
+## c) `grau :: Polinomio -> Int` que indica o grau de um polinómio.
 
 ```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (h1, m1) (h2, m2) = h1 > h2 || (h1 == h2 && m1 > m2)
+grau :: Polinomio -> Int
+grau ps = foldl (\ac x -> max ac (snd x)) 0 ps
 ```
 
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
+## d) `deriv :: Polinomio -> Polinomio` que calcula a derivada de um polinómio.
 
 ```haskell
-hour2min :: Hora -> Int
-hour2min (h, m) = 60 * h + m
+deriv :: Polinomio -> Polinomio
+deriv ps = filter (/= (0,0)) $ map (\(b,e) -> if e /= 0 then (b * fromIntegral e, e - 1) else (0,0)) ps
+```
+
+## e) `calcula :: Float -> Polinomio -> Float` que calcula o valor de um polinómio para uma dado valor de x.
+
+```haskell
+calcula :: Float -> Polinomio -> Float
+calcula a = foldl (\ac (b,e) -> ac + b * (a ^ e)) 0
+```
+
+## f) `simp :: Polinomio -> Polinomio` que retira de um polinómio os monómios de coeficiente zero.
+
+```haskell
+simp :: Polinomio -> Polinomio
+simp = filter (\(b,e) -> b /= 0) 
+```
+
+## g) `mult :: Monomio -> Polinomio -> Polinomio` que calcula o resultado da multiplicação de um monómio por um polinómio.
+
+```haskell
+mult :: Monomio -> Polinomio -> Polinomio
+mult (x,y) = map (\(b,e) -> (b*x,y+e))
+```
+
+## h) `ordena :: Polinomio -> Polinomio` que ordena um polonómio por ordem crescente dos graus dos seus monómios.
+
+```haskell
+ordena :: Polinomio -> Polinomio
+ordena = sortOn snd
+```
+
+## i) `normaliza :: Polinomio -> Polinomio` que dado um polinómio constrói um polinómio equivalente em que não podem aparecer varios monómios com o mesmo grau.
+
+```haskell
+normaliza :: Polinomio -> Polinomio
+normaliza [] = []
+normaliza ((b,e):ps) = (sum [bs | (bs,es) <- selgrau e ps] + b,e):normaliza [(bo,eo) | (bo,eo) <- ps, eo /= e]
+```
+
+## j) `soma :: Polinomio -> Polinomio -> Polinomio` que faz a soma de dois polinómios de forma que se os polinómios que recebe estiverem normalizados produz também um polinómio normalizado.
+
+```haskell
+soma :: Polinomio -> Polinomio -> Polinomio
+soma p r = normaliza $ (++) p r
+```
+
+## k) `produto :: Polinomio -> Polinomio -> Polinomio` que calcula o produto de dois polinómios.
+
+```haskell
+produto :: Polinomio -> Polinomio -> Polinomio
+produto p1 p2 = foldl (\ac x -> soma (mult x p2) ac) [] p1
+```
+
+## l) `equiv :: Polinomio -> Polinomio -> Bool` que testa se dois polinómios são equivalentes.
+
+```haskell
+equiv :: Polinomio -> Polinomio -> Bool
+equiv p1 p2 = null (simp (soma p1 (mult (-1,0) p2)))
+
+equiv' :: Polinomio -> Polinomio -> Bool
+equiv' p1 p2 = ordena (normaliza p1) == ordena (normaliza p2)
+```
+
+# 3) Considere a sequinte definição para representar matrizes:
+
+# `type Mat a = [[a]]`
+
+# Por exemplo, a matriz (triangular superior)
+
+```
+| 1 2 3 |
+| 0 4 5 |
+| 0 0 6 |
+```
+
+# seria representada por: `[[1,2,3], [0,4,5], [0,0,6]]`.
+<br>
+# Defina as seguintes funções sobre matrizes (use, sempre que achar apropriado, funções de ordem superior).
+
+## a) `dimOK :: Mat a -> Bool` que testa se uma matriz está bem construída (i.e., se todas as linhas têm a mesma dimensão).
+
+```haskell
+dimOK :: Mat a -> Bool
+dimOK (h:t) = all (\x -> length h == length x) t
+```
+
+## b) `dimMat :: Mat a -> (Int,Int)` que calcula a dimensão de uma matriz.
+
+```haskell
+dimMat :: Mat a -> (Int, Int)
+dimMat m = (length m, length (head m))
+```
+
+## c) `addMat :: Num a => Mat a -> Mat a -> Mat a` que adiciona duas matrizes.
+
+```haskell
+addMat :: Num a => Mat a -> Mat a -> Mat a
+addMat = zipWith (zipWith (+))
 ``` 
 
-## d) converter um valor em minutos para horas;
+## d) `transpose :: Mat a -> Mat a` que calcula a transposta de uma matriz.
 
 ```haskell
-min2hour :: Int -> Hora
-min2hour min = (div min 60, mod min 60)
+transpose :: Mat a -> Mat a
+transpose m = [ [(m !! j) !! i | j <- [0..l-1] ] | i <- [0..c-1]]
+    where (l,c) = dimMat m
 ``` 
 
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
+## e) `multMat :: Num a => Mat a -> Mat a -> Mat a` que calcula o produto de duas matrizes.
 
 ```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
+multMat :: Num a => Mat a -> Mat a -> Mat a
+multMat m1 m2 = [ [ sum (zipWith (*) (m1 !! j) [ x !! i | x <- m2 ]) | i <- [0..c-1] ] | j <- [0..l-1] ]
+    where (l,_) = dimMat m1
+          (_,c) = dimMat m2
 ``` 
 
-## f) adicionar um determinado número de minutos a uma dada hora;
+## f) `zipWMat :: (a -> b -> c) -> Mat a -> Mat b -> Mat c` que, à semelhança do que acontece com a função zipWith, combina duas matrizes. Use essa função para definir uma função que adiciona duas matrizes.
 
 ```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
-``` 
+zipWMat :: (a -> b -> c) -> Mat a -> Mat b -> Mat c
+zipWMat = zipWith . zipWith
 
-# 4) Repita o exercício anterior assumindo agora que as horas são representadas por um novo tipo de dados:
-
-# `data Hora = H Int Int deriving (Show,Eq)`
-
-# Com este novo tipo a hora _meia noite e um quarto_ é representada por `H 0 15` e a hora _duas menos um quarto_ por `H 13 45`.
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
-
-```haskell
-horaValida :: Hora -> Bool
-horaValida (H h m) = elem h [0..23] && elem m [0..59]
+addMat' :: Num a => Mat a -> Mat a -> Mat a
+addMat' = zipWMat (+)
 ```
 
-## b) testar se uma hora é ou não depois de outra (comparação);
+## g) `triSup :: Num a => Mat a -> Bool` que testa se uma matriz quadrada é triangular superior (i.e., todos os elementos abaixo da diagonal são nulos).
 
 ```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (H h1 m1) (H h2 m2) = h1 > h2 || (h1 == h2 && m1 > m2)
+triSup :: Real a => Mat a -> Bool
+triSup = snd . foldl (\(ac1,ac2) line -> (ac1+1, all (== 0) (take ac1 line) && ac2)) (0,True)
 ```
 
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
-
-```haskell
-hour2min :: Hora -> Int
-hour2min (H h m) = 60 * h + m
-``` 
-
-## d) converter um valor em minutos para horas;
-
-```haskell
-min2hour :: Int -> Hora
-min2hour min = H (div min 60) (mod min 60)
-``` 
-
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
-
-```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
-``` 
-
-## f) adicionar um determinado número de minutos a uma dada hora;
-
-```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
-``` 
-
-# 5) Considere o seguinte tipo de dados para representar os possíveis estados de um semáforo:
-
-# `data Semaforo = Verde | Amarelo | Vermelho deriving (Show, Eq)`
-
-## a) Defina a função `next :: Semaforo -> Semaforo` que calcula o próximo estado de um semáforo.
-
-```haskell
-next :: Semaforo -> Semaforo
-next s = case s of Verde -> Amarelo
-                   Amarelo -> Vermelho
-                   Vermelho -> Verde
-```
-
-## b) Defina a função `stop :: Semaforo -> Bool` que determina se é obrigatório parar num semáforo.
-
-```haskell
-stop :: Semaforo -> Bool
-stop s = s == Vermelho
-```
-
-## c) Defina a função `safe :: Semaforo -> Semaforo -> Bool` que testa se o estado de dois semáforos num cruzamento é seguro.
-
-```haskell
-safe :: Semaforo -> Semaforo -> Bool
-safe s1 s2 = s1 == Vermelho || s2 == Vermelho
-```
-
-# 6) Um ponto num plano pode ser representado por um sistema de coordenadas Cartesiano (distâncias aos eixos vertical e horizontal) ou por um sistema de coordenadas Polar (distância à origem e ângulo do respetivo vector com o eixo horizontal).
-
-# `data Ponto = Cartesiano Double Double | Polar Double Double deriving (Show,Eq)`
-
-# Com este tipo o ponto Cartesiano (-1) 0 pode alternativamente ser representado por Polar 1 pi. Defina as seguintes funções:
-
-## a) `posx :: Ponto -> Double` que calcula a distância de um ponto ao eixo vertical.
-
-```haskell
-posx :: Ponto -> Double
-posx ponto = case ponto of Cartesiano x _ -> x
-                           Polar d a -> if a == pi/2 then 0 else d * cos a
--- Utilizamos aqui um `if` porque `cos (pi/2)` não dá exatamente 0, devido à forma como os valores do tipo Double são armazenados no computador.
-```
-
-## b) `posy :: Ponto -> Double` que calcula a distância de um ponto ao eixo horizontal.
-
-```haskell
-posy :: Ponto -> Double
-posy ponto = case ponto of Cartesiano _ y -> y
-                           Polar d a -> if a == pi then 0 else d * sin a
-```
-
-## c) `raio :: Ponto -> Double` que calcula a distância de um ponto à origem.
-
-```haskell
-raio :: Ponto -> Double
-raio ponto = case ponto of Cartesiano x y -> sqrt (x^2 + y^2)
-                           Polar d _ -> d
-```
-
-## d) `angulo :: Ponto -> Double` que calcula o ângulo entre o vector que liga a origem a um ponto e o eixo horizontal.
-
-```haskell
-angulo :: Ponto -> Double
-angulo ponto = case ponto of Cartesiano x y -> if x < 0 && y == 0 then pi else
-                                               if x < 0 then pi + atan (y/x) else
-                                               atan (y/x)
-                             Polar _ a -> a
-```
-
-## e) `dist :: Ponto -> Ponto -> Double` que calcula a distância entre dois pontos.
-
-```haskell
-dist :: Ponto -> Ponto -> Double
-dist ponto1 ponto2 = sqrt (((posx ponto1 - posx ponto2) ^ 2) + (posy ponto1 - posy ponto2) ^ 2)
-```
-
-
-# 7) Considere o seguinte tipo de dados para representar figuras geométricas num plano.
+## h) `rotateLeft :: Mat a -> Mat a` que roda uma matriz 90o para a esquerda. Por exemplo, o resultado de rodar a matriz acima apresentada deve corresponder à matriz:
 
 ```
-data Figura = Circulo Ponto Double
-            | Rectangulo Ponto Ponto
-            | Triangulo Ponto Ponto Ponto
-              deriving (Show,Eq)
-```
-
-# Uma figura pode ser um círculo centrado um determinado ponto e com um determinado raio, um retângulo paralelo aos eixos representado por dois pontos que são vértices da sua diagonal, ou um triângulo representado pelos três pontos dos seus vértices. Defina as seguintes funções:
-
-## a) Defina a função `poligono :: Figura -> Bool` que testa se uma figura é um polígono.
-
-```haskell
-poligono :: Figura -> Bool
-poligono (Circulo c r) = False
-poligono (Retangulo p1 p2) = posx p1 /= posx p2 && posy p1 /= posy p2 -- Verifica que os pontos não têm o mesmo valor de x ou y
-poligono (Triangulo p1 p2 p3) = (posy p2 - posy p1) / (posx p2 - posx p1) /= (posy p3 - posy p2) / (posx p3 - posx p2) -- Verifica que os pontos não pertencem todos à mesma reta
-```
-
-## b) Defina a função `vertices :: Figura -> [Ponto]` que calcula a lista dos vertices de uma figura.
-
-```haskell
-vertices :: Figura -> [Ponto]
-vertices (Circulo _ _) = []
-vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, Cartesiano (posx p1) (posy p2), Cartesiano (posx p2) (posy p1), p2] else []
-vertices triang@(Triangulo p1 p2 p3) = if poligono triang then [p1, p2, p3] else []
-```
-
-## c) Complete a seguinte definição cujo objectivo é calcular a área de uma figura:
-
-```
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- formula de Heron
+| 3 5 6 |
+| 2 4 0 |
+| 1 0 0 |
 ```
 
 ```haskell
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- fórmula de Heron
-area (Circulo _ r) = pi * (r ^ 2)
-area (Retangulo p1 p2) = abs (posx p2 - posx p1) * abs (posy p2 - posy p1) 
-```
-
-
-## d) Defina a função `perimetro :: Figura -> Double` que calcula o perímetro de uma figura.
-
-```haskell
-perimetro :: Figura -> Double
-perimetro (Circulo _ r) = 2 * pi * r
-perimetro (Retangulo p1 p2) = 2 * abs (posx p2 - posx p1) + 2 * abs (posy p2 - posy p1)
-perimetro (Triangulo p1 p2 p3) = dist p1 p2 + dist p2 p3 + dist p1 p3
-```
-
-
-# 8) Utilizando as funções `ord :: Char -> Int` e `chr :: Int -> Char` do módulo Data.Char, defina as seguintes funções (note que todas estas funções já estão também pré-definidas nesse módulo):
-
-## a) `isLower :: Char -> Bool`, que testa se um `Char` é uma minúscula.
-
-```haskell
-isLower :: Char -> Bool
-isLower ch = ord ch >= ord 'a' && ord ch <= ord 'z'
-
--- Pode ser simplificado para:
-
-isLower' :: Char -> Bool
-isLower' ch = ch `elem` ['a'..'z']
-```
-
-## b) `isDigit :: Char -> Bool`, que testa se um `Char` é um dígito.
-
-```haskell
-isDigit :: Char -> Bool
-isDigit d = ord ch >= ord '0' && ord ch <= ord '9'
-```
-
-## c) `isAlpha :: Char -> Bool`, que testa se um `Char` é uma letra.
-
-```haskell
-isAlpha :: Char -> Bool
-isAlpha ch = isLower ch || isUpper ch
-    where isUpper ch = ord ch >= ord 'A' && ord ch <= ord 'Z'
-```
-
-## d) `toUpper :: Char -> Char`, que converte uma letra para a respectiva maiúscula.
-
-```haskell
-toUpper :: Char -> Char
-toUpper ch = if isLower ch then chr (ord ch - 32) else ch
--- 32 é o resultado de `ord 'a' - ord 'A'`
-```
-
-## e) `intToDigit :: Int -> Char`, que converte um número entre 0 e 9 para o respetivo dígito.
-
-```haskell
-intToDigit :: Int -> Char
-intToDigit n = chr (n + 48)
--- 48 é o resultado de `ord '0' - 0`
-```
-
-## f) `digitToInt :: Char -> Int`, que converte um dígito para o respetivo inteiro.
-
-```haskell
-digitToInt :: Char -> Int 
-digitToInt ch = ord ch - 48
+rotateLeft :: Mat a -> Mat a
+rotateLeft m = [ [ map (!! i) m !! j | j <- [0..l-1] ] | i <- [c-1,c-2..0]] 
+    where (l,c) = dimMat m
 ```
