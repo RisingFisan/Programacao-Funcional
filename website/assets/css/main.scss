@@ -74,6 +74,9 @@ ol {
     h2 + .language-plaintext {
         @apply text-lg font-light ml-20 mb-2;
     }
+    h1 + .language-haskell {
+        @apply mt-4;
+    }
     .language-plaintext + h2 {
         @apply mt-0;
     }
