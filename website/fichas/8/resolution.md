@@ -1,376 +1,196 @@
-# 1) Usando as seguintes funções pré-definidas do Haskell:
+# 1) Considere o seguinte tipo de dados para representar frações
 
-- `length l`: o número de elementos da lista `l`
-- `head l`: a cabeça da lista (não vazia) `l`
-- `tail l`: a cauda da lista (não vazia) `l`
-- `last l`: o último elemento da lista (não vazia) `l`
-- `sqrt x`: a raiz quadrada de `x`
-- `div x y`: a divisão inteira de `x` por `y`
-- `mod x y`: o resto da divisão inteira de `x` por `y`
-
-# Defina as seguintes funções e os respetivos tipos:
-
-## a) `perimetro` - que calcula o perímetro de uma circunferência, dado o comprimento do seu raio.
-
-```haskell
-perimetro :: Double -> Double
-perimetro x = 2 * pi * x
+```
+data Frac = F Integer Integer
 ```
 
-## b) `dist` - que calcula a distância entre dois pontos no plano Cartesiano. Cada ponto é um par de valores do tipo `Double`.
+## a) Defina a função `normaliza :: Frac -> Frac` que dada uma fracção calcula uma fracção equivalente, irredutível, e com o denominador positivo. Por exemplo, `normaliza (F (-33) (-51))` deve retornar `F 11 17` e `normaliza (F 50 (-5))` deve retornar `F (-10) 1`. Sugere-se que comece por definir primeiro a função `mdc :: Integer -> Integer -> Integer` que calcula o máximo divisor comum entre dois números, baseada na seguinte propriedade (atribuida a Euclides): `mdc x y == mdc (x+y) y == mdc x (y+x)`
 
 ```haskell
-dist :: (Double, Double) -> (Double, Double) -> Double
-dist (x1, y1) (x2, y2) = sqrt(dx ^ 2 + dy ^ 2) 
-    where dx = x1 - x2
-          dy = y1 - y2
+mdc :: Integer -> Integer -> Integer
+mdc a b = last [n | n <- [1..(min a b)] , a `mod` n == 0, b `mod` n == 0]
+
+normaliza :: Frac -> Frac
+normaliza (F a b) = F ((abs a) `div` x) (bX `div` x)
+    where x = mdc (abs a) (abs b) * (if a * b < 0 then (-1) else 1)
+          bX | a < 0 = -b
+             | otherwise = b
 ```
 
-## c) `primUlt` - que recebe uma lista e devolve um par com o primeiro e o último elemento dessa lista.
+## b) Defina `Frac` como instância da classe `Eq`.
 
 ```haskell
-primUlt :: [a] -> (a, a)
-primUlt l = (head l, last l)
+instance Eq Frac where
+    (F a b) == (F c d) = a * d == c * b
 ```
 
-## d) `multiplo` - tal que `multiplo m n` testa se o número inteiro `m` é múltiplo de `n`.
+## c) Defina `Frac` como instância da classe `Ord`.
 
 ```haskell
-multiplo :: Int -> Int -> Bool
-multiplo x y = mod x y == 0
+instance Ord Frac where
+    (F a b) <= (F c d) = a * d <= c * b
 ```
 
-## e) `truncaImpar` – que recebe uma lista e, se o comprimento da lista for ímpar, retira-lhe o primeiro elemento, caso contrário devolve a própria lista.
+## d) Defina `Frac` como instância da classe `Show`, de forma a que cada fracção seja apresentada por _(numerador/denominador)_.
 
 ```haskell
-truncaImpar :: [a] -> [a]
-truncaImpar l = if even (length l) then l else tail l 
+instance Show Frac where
+    show (F a b) = show a ++ "/" ++ show b
 ```
 
-## f) `max2` – que calcula o maior de dois números inteiros.
+## e) Defina `Frac` como instância da classe `Num`. Relembre que a classe `Num` tem a seguinte definição:
 
-```haskell
-max2 :: Ord p => p -> p -> p
-max2 x y = if x > y then x else y
+```
+class (Eq a, Show a) => Num a where
+    (+), (*), (-) :: a -> a -> a
+    negate, abs, signum :: a -> a
+    fromInteger :: Integer -> a
 ```
 
-## g) `max3` – que calcula o maior de três números inteiros, usando a função `max2`.
-
 ```haskell
-max3 :: Ord p => p -> p -> p -> p
-max3 x y z = max2 (max2 x y) z
+instance Num Frac where
+    -- (+), (*), (-) :: a -> a -> a
+    -- negate, abs, signum :: a -> a
+    -- fromInteger :: Integer -> a
+    (F a b) + (F c d) | b == d = normaliza $ F (a + c) b
+                      | otherwise = normaliza $ F (a * d + b * c) (b * d)
+    x - y = x + negate y
+    (F a b) * (F c d) = F (a * c) (b * d)
+    negate (F a b) = F (-a) b
+    abs (F a b) = F (abs a) (abs b)
+    signum (F a b) | a == 0 = 0
+                   | a * b > 0 = 1
+                   | otherwise = -1
+    fromInteger x = F x 1
 ```
 
-# 2) Defina as seguintes funções sobre polinómios de 2º grau:
-
-## a) A função nRaizes que recebe os (3) coeficientes de um polinómio de 2º grau e que calcula o número de raízes (reais) desse polinómio.
+## f) Defina uma função que, dada uma fracção `f` e uma lista de fracções `l`, selecciona de `l` os elementos que são maiores do que o dobro de `f`.
 
 ```haskell
-nRaizes :: Double -> Double -> Double -> Int
-nRaizes a b c 
-    | delta > 0 = 2 
-    | delta == 0 = 1
-    | delta < 0 = 0 
-    where delta = b^2 - 4*a*c
+maioresQueDobro :: Frac -> [Frac] -> [Frac]
+maioresQueDobro f l = filter ((<) (2 * f)) l
 ```
 
-## b) A função raizes que, usando a função anterior, recebe os coeficientes do polinómio e calcula a lista das suas raízes reais.
+# 2) Relembre o tipo definido na Ficha 7 para representar expressões inteiras. Uma possível generalização desse tipo de dados, será considerar expressões cujas constantes são de um qualquer tipo numérico (i.e., da classe `Num`).
 
-```haskell
-raizes :: Double -> Double -> Double -> [Double]
-raizes a b c 
-    | n == 2 = [x1, x2] 
-    | n == 1 = [x1] -- Neste caso x1 e x2 são iguais, por isso podemos devolver apenas um dos valores
-    | n == 0 = [] 
-    where n = nRaizes a b c
-          delta = b^2 - 4*a*c
-          (x1,x2) = (((-b) + sqrt delta)/ (2*a), ((-b) - sqrt delta)/ (2*a))
+```
+data Exp a = Const a
+| Simetrico (Exp a)
+| Mais (Exp a) (Exp a)
+| Menos (Exp a) (Exp a)
+| Mult (Exp a) (Exp a)
 ```
 
-# 3) Vamos representar horas por um par de números inteiros:
-
-# `type Hora = (Int,Int)`
-
-# Assim o par `(0,15)` significa _meia noite e um quarto_ e `(13,45)` _duas menos um quarto_. Defina funções para:
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
+## a) Declare `Exp a` como uma instância de `Show`.
 
 ```haskell
-horaValida :: Hora -> Bool
-horaValida (h, m) = elem h [0..23] && elem m [0..59]
+instance Show a => Show (Exp a) where
+    show (Const a) = show a
+    show (Simetrico a) = "(- " ++ show a ++ ")"
+    show (Mais a b) = "(" ++ show a ++ " + " ++ show b ++ ")"
+    show (Menos a b) = "(" ++ show a ++ " - " ++ show b ++ ")"
+    show (Mult a b) = "(" ++ show a ++ " * " ++ show b ++ ")"
 ```
 
-## b) testar se uma hora é ou não depois de outra (comparação);
+## b) Declare `Exp a` como uma instância de `Eq`.
 
 ```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (h1, m1) (h2, m2) = h1 > h2 || (h1 == h2 && m1 > m2)
+valorDe :: (Num a) => Exp a -> a
+valorDe (Const a) = a
+valorDe (Simetrico a) = - (valorDe a)
+valorDe (Mais a b) = valorDe a + valorDe b
+valorDe (Menos a b) = valorDe a - valorDe b
+valorDe (Mult a b) = valorDe a * valorDe b
+
+instance (Num a,Eq a) => Eq (Exp a) where
+    x == y = valorDe x == valorDe y
 ```
 
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
+## c) Declare `Exp a` como instância da classe `Num`.
 
 ```haskell
-hour2min :: Hora -> Int
-hour2min (h, m) = 60 * h + m
+instance (Num a, Eq a) => Num (Exp a) where
+    x + y = Const (valorDe x + valorDe y)
+    --
+    x - y = Const (valorDe x - valorDe y)
+    --
+    x * y = Const (valorDe x * valorDe y)
+    --
+    negate (Const a) = Const (- a)
+    negate (Simetrico a) = a
+    negate (Mais a b) = Mais (- a) (- b)
+    negate (Menos a b) = Menos b a
+    negate (Mult a b) = Mult (-a) b
+    fromInteger x = Const (fromInteger x)
+    abs (Const a) = Const (abs a)
+    abs (Simetrico a) = abs a
+    abs (Mais a b) = abs (a + b)
+    abs (Menos a b) = abs (a - b)
+    abs (Mult a b) = abs (a * b)
+    signum (Const a) = Const (if abs a == a then if a == 0 then 0 else 1 else (-1))
+    signum (Simetrico a) = - signum a
+    signum (Mais a b) = Const (if abs (a + b) == a + b then if a + b == 0 then 0 else 1 else (-1))
+    signum (Menos a b) = Const (if abs (a - b) == a - b then if a - b == 0 then 0 else 1 else (-1))
+    signum (Mult a b) = Const (if abs (a * b) == a * b then if a * b == 0 then 0 else 1 else (-1))
+```
+
+# 3) Relembre o exercício da Ficha 3 sobre contas bancárias, com a seguinte declaração de tipos:
+
+```
+data Movimento = Credito Float | Debito Float
+data Data = D Int Int Int
+data Extracto = Ext Float [(Data, String, Movimento)]
+```
+
+## a) Defina `Data` como instância da classe `Ord`.
+
+```haskell
+instance Ord Data where
+    compare (D dia1 mes1 ano1) (D dia2 mes2 ano2) 
+        | ano1 > ano2 || ano1 == ano2 && (mes1 > mes2 || mes1 == mes2 && dia1 > dia2) = GT
+        | ano1 == ano2 && mes1 == mes2 && dia1 == dia2 = EQ
+        | otherwise = LT
+```
+
+## b) Defina `Data` como instância da classe `Show`.
+
+```haskell
+instance Show Data where 
+    show (D dia mes ano) = intercalate "/" $ map show [dia,mes,ano]
+```
+
+## c) Defina a função `ordena :: Extracto -> Extracto`, que transforma um extrato de modo a que a lista de movimentos apareça ordenada por ordem crescente de data.
+
+```haskell
+ordena :: Extracto -> Extracto
+ordena (Ext n l) = Ext n (sort l)
 ``` 
 
-## d) converter um valor em minutos para horas;
+## d) Defina `Extracto` como instância da classe `Show` de forma a que a apresentação do extracto seja por ordem de data do movimento, com o seguinte aspeto:
+
+```
+Saldo anterior: 300
+---------------------------------------
+Data Descricao Credito Debito
+---------------------------------------
+2010/4/5 DEPOSITO 2000
+2010/8/10 COMPRA 37,5
+2010/9/1 LEV 60
+2011/1/7 JUROS 100
+2011/1/22 ANUIDADE 8
+---------------------------------------
+Saldo atual: 2294,5
+```
 
 ```haskell
-min2hour :: Int -> Hora
-min2hour min = (div min 60, mod min 60)
+saldo :: Extracto -> Float
+saldo (Ext x lm) = foldl (\acc (_,_,mov) -> case mov of Credito n -> acc + n; Debito n -> acc - n) x lm
+
+instance Show Extracto where
+    show (Ext n l) = "Saldo anterior: " ++ show n ++
+                     "\n---------------------------------------" ++
+                     "\nData       Descricao   Credito   Debito" ++
+                     "\n---------------------------------------\n" ++ concatMap (\(dat,str,_) -> show dat ++ replicate (11 - length (show dat)) ' ' ++ map toUpper str ++ "    \n") l ++
+                     "---------------------------------------" ++
+                     "\nSaldo atual: " ++ show (saldo (Ext n l))
 ``` 
-
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
-
-```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
-``` 
-
-## f) adicionar um determinado número de minutos a uma dada hora;
-
-```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
-``` 
-
-# 4) Repita o exercício anterior assumindo agora que as horas são representadas por um novo tipo de dados:
-
-# `data Hora = H Int Int deriving (Show,Eq)`
-
-# Com este novo tipo a hora _meia noite e um quarto_ é representada por `H 0 15` e a hora _duas menos um quarto_ por `H 13 45`.
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
-
-```haskell
-horaValida :: Hora -> Bool
-horaValida (H h m) = elem h [0..23] && elem m [0..59]
-```
-
-## b) testar se uma hora é ou não depois de outra (comparação);
-
-```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (H h1 m1) (H h2 m2) = h1 > h2 || (h1 == h2 && m1 > m2)
-```
-
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
-
-```haskell
-hour2min :: Hora -> Int
-hour2min (H h m) = 60 * h + m
-``` 
-
-## d) converter um valor em minutos para horas;
-
-```haskell
-min2hour :: Int -> Hora
-min2hour min = H (div min 60) (mod min 60)
-``` 
-
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
-
-```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
-``` 
-
-## f) adicionar um determinado número de minutos a uma dada hora;
-
-```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
-``` 
-
-# 5) Considere o seguinte tipo de dados para representar os possíveis estados de um semáforo:
-
-# `data Semaforo = Verde | Amarelo | Vermelho deriving (Show, Eq)`
-
-## a) Defina a função `next :: Semaforo -> Semaforo` que calcula o próximo estado de um semáforo.
-
-```haskell
-next :: Semaforo -> Semaforo
-next s = case s of Verde -> Amarelo
-                   Amarelo -> Vermelho
-                   Vermelho -> Verde
-```
-
-## b) Defina a função `stop :: Semaforo -> Bool` que determina se é obrigatório parar num semáforo.
-
-```haskell
-stop :: Semaforo -> Bool
-stop s = s == Vermelho
-```
-
-## c) Defina a função `safe :: Semaforo -> Semaforo -> Bool` que testa se o estado de dois semáforos num cruzamento é seguro.
-
-```haskell
-safe :: Semaforo -> Semaforo -> Bool
-safe s1 s2 = s1 == Vermelho || s2 == Vermelho
-```
-
-# 6) Um ponto num plano pode ser representado por um sistema de coordenadas Cartesiano (distâncias aos eixos vertical e horizontal) ou por um sistema de coordenadas Polar (distância à origem e ângulo do respetivo vector com o eixo horizontal).
-
-# `data Ponto = Cartesiano Double Double | Polar Double Double deriving (Show,Eq)`
-
-# Com este tipo o ponto Cartesiano (-1) 0 pode alternativamente ser representado por Polar 1 pi. Defina as seguintes funções:
-
-## a) `posx :: Ponto -> Double` que calcula a distância de um ponto ao eixo vertical.
-
-```haskell
-posx :: Ponto -> Double
-posx ponto = case ponto of Cartesiano x _ -> x
-                           Polar d a -> if a == pi/2 then 0 else d * cos a
--- Utilizamos aqui um `if` porque `cos (pi/2)` não dá exatamente 0, devido à forma como os valores do tipo Double são armazenados no computador.
-```
-
-## b) `posy :: Ponto -> Double` que calcula a distância de um ponto ao eixo horizontal.
-
-```haskell
-posy :: Ponto -> Double
-posy ponto = case ponto of Cartesiano _ y -> y
-                           Polar d a -> if a == pi then 0 else d * sin a
-```
-
-## c) `raio :: Ponto -> Double` que calcula a distância de um ponto à origem.
-
-```haskell
-raio :: Ponto -> Double
-raio ponto = case ponto of Cartesiano x y -> sqrt (x^2 + y^2)
-                           Polar d _ -> d
-```
-
-## d) `angulo :: Ponto -> Double` que calcula o ângulo entre o vector que liga a origem a um ponto e o eixo horizontal.
-
-```haskell
-angulo :: Ponto -> Double
-angulo ponto = case ponto of Cartesiano x y -> if x < 0 && y == 0 then pi else
-                                               if x < 0 then pi + atan (y/x) else
-                                               atan (y/x)
-                             Polar _ a -> a
-```
-
-## e) `dist :: Ponto -> Ponto -> Double` que calcula a distância entre dois pontos.
-
-```haskell
-dist :: Ponto -> Ponto -> Double
-dist ponto1 ponto2 = sqrt (((posx ponto1 - posx ponto2) ^ 2) + (posy ponto1 - posy ponto2) ^ 2)
-```
-
-
-# 7) Considere o seguinte tipo de dados para representar figuras geométricas num plano.
-
-```
-data Figura = Circulo Ponto Double
-            | Rectangulo Ponto Ponto
-            | Triangulo Ponto Ponto Ponto
-              deriving (Show,Eq)
-```
-
-# Uma figura pode ser um círculo centrado um determinado ponto e com um determinado raio, um retângulo paralelo aos eixos representado por dois pontos que são vértices da sua diagonal, ou um triângulo representado pelos três pontos dos seus vértices. Defina as seguintes funções:
-
-## a) Defina a função `poligono :: Figura -> Bool` que testa se uma figura é um polígono.
-
-```haskell
-poligono :: Figura -> Bool
-poligono (Circulo c r) = False
-poligono (Retangulo p1 p2) = posx p1 /= posx p2 && posy p1 /= posy p2 -- Verifica que os pontos não têm o mesmo valor de x ou y
-poligono (Triangulo p1 p2 p3) = (posy p2 - posy p1) / (posx p2 - posx p1) /= (posy p3 - posy p2) / (posx p3 - posx p2) -- Verifica que os pontos não pertencem todos à mesma reta
-```
-
-## b) Defina a função `vertices :: Figura -> [Ponto]` que calcula a lista dos vertices de uma figura.
-
-```haskell
-vertices :: Figura -> [Ponto]
-vertices (Circulo _ _) = []
-vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, Cartesiano (posx p1) (posy p2), Cartesiano (posx p2) (posy p1), p2] else []
-vertices triang@(Triangulo p1 p2 p3) = if poligono triang then [p1, p2, p3] else []
-```
-
-## c) Complete a seguinte definição cujo objectivo é calcular a área de uma figura:
-
-```
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- formula de Heron
-```
-
-```haskell
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- fórmula de Heron
-area (Circulo _ r) = pi * (r ^ 2)
-area (Retangulo p1 p2) = abs (posx p2 - posx p1) * abs (posy p2 - posy p1) 
-```
-
-
-## d) Defina a função `perimetro :: Figura -> Double` que calcula o perímetro de uma figura.
-
-```haskell
-perimetro :: Figura -> Double
-perimetro (Circulo _ r) = 2 * pi * r
-perimetro (Retangulo p1 p2) = 2 * abs (posx p2 - posx p1) + 2 * abs (posy p2 - posy p1)
-perimetro (Triangulo p1 p2 p3) = dist p1 p2 + dist p2 p3 + dist p1 p3
-```
-
-
-# 8) Utilizando as funções `ord :: Char -> Int` e `chr :: Int -> Char` do módulo Data.Char, defina as seguintes funções (note que todas estas funções já estão também pré-definidas nesse módulo):
-
-## a) `isLower :: Char -> Bool`, que testa se um `Char` é uma minúscula.
-
-```haskell
-isLower :: Char -> Bool
-isLower ch = ord ch >= ord 'a' && ord ch <= ord 'z'
-
--- Pode ser simplificado para:
-
-isLower' :: Char -> Bool
-isLower' ch = ch `elem` ['a'..'z']
-```
-
-## b) `isDigit :: Char -> Bool`, que testa se um `Char` é um dígito.
-
-```haskell
-isDigit :: Char -> Bool
-isDigit d = ord ch >= ord '0' && ord ch <= ord '9'
-```
-
-## c) `isAlpha :: Char -> Bool`, que testa se um `Char` é uma letra.
-
-```haskell
-isAlpha :: Char -> Bool
-isAlpha ch = isLower ch || isUpper ch
-    where isUpper ch = ord ch >= ord 'A' && ord ch <= ord 'Z'
-```
-
-## d) `toUpper :: Char -> Char`, que converte uma letra para a respectiva maiúscula.
-
-```haskell
-toUpper :: Char -> Char
-toUpper ch = if isLower ch then chr (ord ch - 32) else ch
--- 32 é o resultado de `ord 'a' - ord 'A'`
-```
-
-## e) `intToDigit :: Int -> Char`, que converte um número entre 0 e 9 para o respetivo dígito.
-
-```haskell
-intToDigit :: Int -> Char
-intToDigit n = chr (n + 48)
--- 48 é o resultado de `ord '0' - 0`
-```
-
-## f) `digitToInt :: Char -> Int`, que converte um dígito para o respetivo inteiro.
-
-```haskell
-digitToInt :: Char -> Int 
-digitToInt ch = ord ch - 48
-```
