@@ -1,376 +1,234 @@
-# 1) Usando as seguintes funções pré-definidas do Haskell:
+# 1) Considere o seguinte tipo para representar árvores binárias.
 
-- `length l`: o número de elementos da lista `l`
-- `head l`: a cabeça da lista (não vazia) `l`
-- `tail l`: a cauda da lista (não vazia) `l`
-- `last l`: o último elemento da lista (não vazia) `l`
-- `sqrt x`: a raiz quadrada de `x`
-- `div x y`: a divisão inteira de `x` por `y`
-- `mod x y`: o resto da divisão inteira de `x` por `y`
-
-# Defina as seguintes funções e os respetivos tipos:
-
-## a) `perimetro` - que calcula o perímetro de uma circunferência, dado o comprimento do seu raio.
-
-```haskell
-perimetro :: Double -> Double
-perimetro x = 2 * pi * x
+```
+data BTree a = Empty
+| Node a (BTree a) (BTree a)
+deriving Show
 ```
 
-## b) `dist` - que calcula a distância entre dois pontos no plano Cartesiano. Cada ponto é um par de valores do tipo `Double`.
+# Árvore de exemplo para testar as funções:
 
-```haskell
-dist :: (Double, Double) -> (Double, Double) -> Double
-dist (x1, y1) (x2, y2) = sqrt(dx ^ 2 + dy ^ 2) 
-    where dx = x1 - x2
-          dy = y1 - y2
+```
+arvore = (Node 5 (Node 2 (Node 1 Empty
+                                 Empty) 
+                         (Node 3 Empty 
+                                 Empty)) 
+                 (Node 9 (Node 7 (Node 6 Empty 
+                                         Empty) 
+                                 (Node 8 Empty 
+                                         Empty)) 
+                         Empty))
 ```
 
-## c) `primUlt` - que recebe uma lista e devolve um par com o primeiro e o último elemento dessa lista.
+# Defina as seguintes funções:
+
+## a) `altura :: BTree a -> Int` que calcula a altura da árvore.
 
 ```haskell
-primUlt :: [a] -> (a, a)
-primUlt l = (head l, last l)
+altura :: BTree a -> Int
+altura Empty = 0
+altura (Node _ a b) = max (1 + altura a) (1 + altura b)
 ```
 
-## d) `multiplo` - tal que `multiplo m n` testa se o número inteiro `m` é múltiplo de `n`.
+## b) `contaNodos :: BTree a -> Int` que calcula o número de nodos da árvore.
 
 ```haskell
-multiplo :: Int -> Int -> Bool
-multiplo x y = mod x y == 0
+contaNodos :: BTree a -> Int
+contaNodos Empty = 0
+contaNodos (Node _ a b) = 1 + contaNodos a + contaNodos b
 ```
 
-## e) `truncaImpar` – que recebe uma lista e, se o comprimento da lista for ímpar, retira-lhe o primeiro elemento, caso contrário devolve a própria lista.
+## c) `folhas :: BTree a -> Int` que calcula o número de folhas (i.e., nodos sem descendentes) da árvore.
 
 ```haskell
-truncaImpar :: [a] -> [a]
-truncaImpar l = if even (length l) then l else tail l 
+folhas :: BTree a -> Int
+folhas Empty = 0
+folhas (Node _ Empty Empty) = 1
+folhas (Node _ a b) = folhas a + folhas b
 ```
 
-## f) `max2` – que calcula o maior de dois números inteiros.
+## d) `prune :: Int -> BTree a -> BTree a` que remove de uma árvore todos os elementos a partir de uma determinada profundidade.
 
 ```haskell
-max2 :: Ord p => p -> p -> p
-max2 x y = if x > y then x else y
+prune :: Int -> BTree a -> BTree a
+prune _ Empty = Empty
+prune 0 _ = Empty
+prune x (Node e l r) = Node e (prune (x - 1) l) (prune (x - 1) r)
 ```
 
-## g) `max3` – que calcula o maior de três números inteiros, usando a função `max2`.
+## e) `path :: [Bool] -> BTree a -> [a]` que dado um caminho (False corresponde a esquerda e True a direita) e uma árvore, dá a lista com a informação dos nodos por onde esse caminho passa.
 
 ```haskell
-max3 :: Ord p => p -> p -> p -> p
-max3 x y z = max2 (max2 x y) z
+path :: [Bool] -> BTree a -> [a]
+path _ Empty = []
+path [] (Node e l r) = [e]
+path (h:t) (Node e l r) = e : path t (if h then r else l)  
 ```
 
-# 2) Defina as seguintes funções sobre polinómios de 2º grau:
-
-## a) A função nRaizes que recebe os (3) coeficientes de um polinómio de 2º grau e que calcula o número de raízes (reais) desse polinómio.
+## f) `mirror :: BTree a -> BTree a` que dá a árvore simétrica.
 
 ```haskell
-nRaizes :: Double -> Double -> Double -> Int
-nRaizes a b c 
-    | delta > 0 = 2 
-    | delta == 0 = 1
-    | delta < 0 = 0 
-    where delta = b^2 - 4*a*c
+mirror :: BTree a -> BTree a
+mirror Empty = Empty
+mirror (Node e l r) = Node e (mirror r) (mirror l)
 ```
 
-## b) A função raizes que, usando a função anterior, recebe os coeficientes do polinómio e calcula a lista das suas raízes reais.
+## g) `zipWithBT :: (a -> b -> c) -> BTree a -> BTree b -> BTree c` que generaliza a função zipWith para árvores binárias.
 
 ```haskell
-raizes :: Double -> Double -> Double -> [Double]
-raizes a b c 
-    | n == 2 = [x1, x2] 
-    | n == 1 = [x1] -- Neste caso x1 e x2 são iguais, por isso podemos devolver apenas um dos valores
-    | n == 0 = [] 
-    where n = nRaizes a b c
-          delta = b^2 - 4*a*c
-          (x1,x2) = (((-b) + sqrt delta)/ (2*a), ((-b) - sqrt delta)/ (2*a))
+zipWithBT :: (a -> b -> c) -> BTree a -> BTree b -> BTree c
+zipWithBT f (Node e l r) (Node e' l' r') = Node (f e e') (zipWithBT f l l') (zipWithBT f r r')
+zipWithBT _ _ _ = Empty
 ```
 
-# 3) Vamos representar horas por um par de números inteiros:
-
-# `type Hora = (Int,Int)`
-
-# Assim o par `(0,15)` significa _meia noite e um quarto_ e `(13,45)` _duas menos um quarto_. Defina funções para:
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
+## h) `unzipBT :: BTree (a,b,c) -> (BTree a,BTree b,BTree c)` que generaliza a função unzip (neste caso de triplos) para árvores binárias.
 
 ```haskell
-horaValida :: Hora -> Bool
-horaValida (h, m) = elem h [0..23] && elem m [0..59]
+unzipBT :: BTree (a,b,c) -> (BTree a,BTree b,BTree c)
+unzipBT Empty = (Empty, Empty, Empty)
+unzipBT (Node (a,b,c) l r) = (Node a unzipL1 unzipR1, Node b unzipL2 unzipR2, Node c unzipL3 unzipR3)
+    where (unzipL1,unzipL2,unzipL3) = unzipBT l
+          (unzipR1,unzipR2,unzipR3) = unzipBT r
 ```
 
-## b) testar se uma hora é ou não depois de outra (comparação);
+# 2) Defina as seguintes funções, assumindo agora que as árvores são binárias de procura:
+
+## a) Defina uma função `minimo :: Ord a => BTree a -> a` que calcula o menor elemento de uma árvore binária de procura **não vazia**.
 
 ```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (h1, m1) (h2, m2) = h1 > h2 || (h1 == h2 && m1 > m2)
+minimo :: (Ord a) => BTree a -> a
+minimo (Node e Empty _) = e
+minimo (Node e l r) = minimo l
 ```
 
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
+## b) Defina uma função `semMinimo :: Ord a => BTree a -> BTree a` que remove o menor elemento de uma árvore binária de procura **não vazia**.
 
 ```haskell
-hour2min :: Hora -> Int
-hour2min (h, m) = 60 * h + m
+semMinimo :: Ord a => BTree a -> BTree a
+semMinimo (Node _ Empty _) = Empty
+semMinimo (Node e l r) = Node e (semMinimo l) r
+```
+
+## c) Defina uma função `minSmin :: Ord a => BTree a -> (a,BTree a)` que calcula, com uma única travessia da árvore, o resultado das duas funções anteriores.
+
+```haskell
+minSmin :: Ord a => BTree a -> (a,BTree a)
+minSmin (Node e Empty _) = (e,Empty)
+minSmin (Node e l r) = (a,Node e b r)
+    where (a,b) = minSmin l
+```
+
+## d) Defina uma função `remove :: Ord a => a -> BTree a -> BTree a` que remove um elemento de uma árvore binária de procura, usando a função anterior.
+
+```haskell
+remove :: Ord a => a -> BTree a -> BTree a
+remove _ Empty = Empty
+remove x (Node e l r) 
+    | x < e = Node e (remove x l) r
+    | x > e = Node e l (remove x r)
+    | otherwise = case l of Empty -> r
+                            _ -> case r of Empty -> l
+                                           _ -> Node g l h
+    where (g,h) = minSmin r
+
+-- Nesta função, depois de remover o elemento, temos de formar uma nova árvore, pois não podemos ter um nodo vazio. Para isso, removemos o menor elemento do ramo da direita e colocamos esse elemento onde estava o elemento removido. Desta forma, a árvore mantém a sua ordem, já que todos os elementos à esquerda continuam a ser mais pequenos e todos os elementos à direita continuam a ser maiores do que o elemento no nodo.
+```
+
+# 3) Considere agora que guardamos a informação sobre uma turma de alunos na seguinte estrutura de dados:
+
+```
+type Aluno = (Numero,Nome,Regime,Classificacao)
+type Numero = Int
+type Nome = String
+data Regime = ORD | TE | MEL deriving Show
+data Classificacao = Aprov Int
+                   | Rep
+                   | Faltou
+    deriving Show
+
+type Turma = BTree Aluno -- árvore binária de procura (ordenada por número)
+```
+
+# Turma de exemplo para testar as funções:
+
+```
+turma :: Turma
+turma = (Node (15,"Luís",ORD,Aprov 14) (Node (12,"Joana",MEL,Faltou) (Node (7,"Diogo",TE,Rep) Empty Empty) (Node (14,"Lara",ORD,Aprov 19) Empty Empty)) (Node (20,"Pedro",TE,Aprov 10) Empty (Node (25,"Sofia",ORD,Aprov 20) (Node (23,"Rita",ORD,Aprov 17) Empty Empty) (Node (28,"Vasco",MEL,Rep) Empty Empty))))
+```
+
+# Defina as seguintes funções:
+
+## a) `inscNum :: Numero -> Turma -> Bool` que verifica se um aluno, com um dado número, está inscrito.
+
+```haskell
+inscNum :: Numero -> Turma -> Bool
+inscNum _ Empty = False
+inscNum n (Node (num,_,_,_) l r) = n == num || inscNum n (if n < num then l else r)
+```
+
+## b) `inscNome :: Nome -> Turma -> Bool` que verifica se um aluno, com um dado nome, está inscrito.
+
+```haskell
+inscNome :: Nome -> Turma -> Bool
+inscNome _ Empty = False
+inscNome n (Node (_,nom,_,_) l r) = n == nom || inscNome n l || inscNome n r
+```
+
+## c) `trabEst :: Turma -> [(Numero,Nome)]` que lista o número e nome dos alunos trabalhadores-estudantes (ordenados por número).
+
+```haskell
+trabEst :: Turma -> [(Numero,Nome)]
+trabEst Empty = []
+trabEst (Node (num,nom,reg,_) l r) = (case reg of TE -> [(num,nom)];otherwise -> []) ++ trabEst l ++ trabEst r
 ``` 
 
-## d) converter um valor em minutos para horas;
+## d) `nota :: Numero -> Turma -> Maybe Classificacao` que calcula a classificação de um aluno (se o aluno não estiver inscrito a função deve retornar Nothing).
 
 ```haskell
-min2hour :: Int -> Hora
-min2hour min = (div min 60, mod min 60)
+nota :: Numero -> Turma -> Maybe Classificacao
+nota n (Node (num,_,_,clas) l r) | n == num = Just clas
+                                 | n < num = nota n l
+                                 | otherwise = nota n r
+nota _ _ = Nothing
 ``` 
 
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
+## e) `percFaltas :: Turma -> Float` que calcula a percentagem de alunos que faltaram à avaliação.
 
 ```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
+percFaltas :: Turma -> Float
+percFaltas Empty = 0
+percFaltas turma = sumFaltas turma / numAlunos turma * 100
+    where sumFaltas Empty = 0
+          sumFaltas (Node (_,_,_,clas) l r) = (case clas of Faltou -> 1;otherwise -> 0) + sumFaltas l + sumFaltas r
+          numAlunos Empty = 0
+          numAlunos (Node e l r) = 1 + numAlunos l + numAlunos r
 ``` 
 
-## f) adicionar um determinado número de minutos a uma dada hora;
+## f) `mediaAprov :: Turma -> Float` que calcula a média das notas dos alunos que passaram.
 
 ```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
+mediaAprov :: Turma -> Float
+mediaAprov Empty = 0
+mediaAprov turma = sumNotas turma / numNotas turma
+    where sumNotas :: Turma -> Float
+          sumNotas Empty = 0
+          sumNotas (Node (_,_,_,Aprov nota) l r) = fromIntegral nota + sumNotas l + sumNotas r
+          sumNotas (Node e l r) = sumNotas l + sumNotas r
+          numNotas :: Turma -> Float
+          numNotas (Node (_,_,_,clas) l r) = (case clas of Aprov nota -> 1;otherwise -> 0) + numNotas l + numNotas r
+          numNotas _ = 0
 ``` 
 
-# 4) Repita o exercício anterior assumindo agora que as horas são representadas por um novo tipo de dados:
-
-# `data Hora = H Int Int deriving (Show,Eq)`
-
-# Com este novo tipo a hora _meia noite e um quarto_ é representada por `H 0 15` e a hora _duas menos um quarto_ por `H 13 45`.
-
-## a) testar se um par de inteiros representa uma hora do dia válida;
+## g) `aprovAv :: Turma -> Float` que calcula o rácio de alunos aprovados por avaliados. Implemente esta função fazendo apenas uma travessia da árvore.
 
 ```haskell
-horaValida :: Hora -> Bool
-horaValida (H h m) = elem h [0..23] && elem m [0..59]
-```
-
-## b) testar se uma hora é ou não depois de outra (comparação);
-
-```haskell
-horaDepois :: Hora -> Hora -> Bool
-horaDepois (H h1 m1) (H h2 m2) = h1 > h2 || (h1 == h2 && m1 > m2)
-```
-
-## c) converter um valor em horas (par de inteiros) para minutos (inteiro);
-
-```haskell
-hour2min :: Hora -> Int
-hour2min (H h m) = 60 * h + m
-``` 
-
-## d) converter um valor em minutos para horas;
-
-```haskell
-min2hour :: Int -> Hora
-min2hour min = H (div min 60) (mod min 60)
-``` 
-
-## e) calcular a diferença entre duas horas (cujo resultado deve ser o número de minutos);
-
-```haskell
-hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
-``` 
-
-## f) adicionar um determinado número de minutos a uma dada hora;
-
-```haskell
-addMins :: Hora -> Int -> Hora
-addMins (h, m) min = min2hour (hour2min (h, m) + min)
-``` 
-
-# 5) Considere o seguinte tipo de dados para representar os possíveis estados de um semáforo:
-
-# `data Semaforo = Verde | Amarelo | Vermelho deriving (Show, Eq)`
-
-## a) Defina a função `next :: Semaforo -> Semaforo` que calcula o próximo estado de um semáforo.
-
-```haskell
-next :: Semaforo -> Semaforo
-next s = case s of Verde -> Amarelo
-                   Amarelo -> Vermelho
-                   Vermelho -> Verde
-```
-
-## b) Defina a função `stop :: Semaforo -> Bool` que determina se é obrigatório parar num semáforo.
-
-```haskell
-stop :: Semaforo -> Bool
-stop s = s == Vermelho
-```
-
-## c) Defina a função `safe :: Semaforo -> Semaforo -> Bool` que testa se o estado de dois semáforos num cruzamento é seguro.
-
-```haskell
-safe :: Semaforo -> Semaforo -> Bool
-safe s1 s2 = s1 == Vermelho || s2 == Vermelho
-```
-
-# 6) Um ponto num plano pode ser representado por um sistema de coordenadas Cartesiano (distâncias aos eixos vertical e horizontal) ou por um sistema de coordenadas Polar (distância à origem e ângulo do respetivo vector com o eixo horizontal).
-
-# `data Ponto = Cartesiano Double Double | Polar Double Double deriving (Show,Eq)`
-
-# Com este tipo o ponto Cartesiano (-1) 0 pode alternativamente ser representado por Polar 1 pi. Defina as seguintes funções:
-
-## a) `posx :: Ponto -> Double` que calcula a distância de um ponto ao eixo vertical.
-
-```haskell
-posx :: Ponto -> Double
-posx ponto = case ponto of Cartesiano x _ -> x
-                           Polar d a -> if a == pi/2 then 0 else d * cos a
--- Utilizamos aqui um `if` porque `cos (pi/2)` não dá exatamente 0, devido à forma como os valores do tipo Double são armazenados no computador.
-```
-
-## b) `posy :: Ponto -> Double` que calcula a distância de um ponto ao eixo horizontal.
-
-```haskell
-posy :: Ponto -> Double
-posy ponto = case ponto of Cartesiano _ y -> y
-                           Polar d a -> if a == pi then 0 else d * sin a
-```
-
-## c) `raio :: Ponto -> Double` que calcula a distância de um ponto à origem.
-
-```haskell
-raio :: Ponto -> Double
-raio ponto = case ponto of Cartesiano x y -> sqrt (x^2 + y^2)
-                           Polar d _ -> d
-```
-
-## d) `angulo :: Ponto -> Double` que calcula o ângulo entre o vector que liga a origem a um ponto e o eixo horizontal.
-
-```haskell
-angulo :: Ponto -> Double
-angulo ponto = case ponto of Cartesiano x y -> if x < 0 && y == 0 then pi else
-                                               if x < 0 then pi + atan (y/x) else
-                                               atan (y/x)
-                             Polar _ a -> a
-```
-
-## e) `dist :: Ponto -> Ponto -> Double` que calcula a distância entre dois pontos.
-
-```haskell
-dist :: Ponto -> Ponto -> Double
-dist ponto1 ponto2 = sqrt (((posx ponto1 - posx ponto2) ^ 2) + (posy ponto1 - posy ponto2) ^ 2)
-```
-
-
-# 7) Considere o seguinte tipo de dados para representar figuras geométricas num plano.
-
-```
-data Figura = Circulo Ponto Double
-            | Rectangulo Ponto Ponto
-            | Triangulo Ponto Ponto Ponto
-              deriving (Show,Eq)
-```
-
-# Uma figura pode ser um círculo centrado um determinado ponto e com um determinado raio, um retângulo paralelo aos eixos representado por dois pontos que são vértices da sua diagonal, ou um triângulo representado pelos três pontos dos seus vértices. Defina as seguintes funções:
-
-## a) Defina a função `poligono :: Figura -> Bool` que testa se uma figura é um polígono.
-
-```haskell
-poligono :: Figura -> Bool
-poligono (Circulo c r) = False
-poligono (Retangulo p1 p2) = posx p1 /= posx p2 && posy p1 /= posy p2 -- Verifica que os pontos não têm o mesmo valor de x ou y
-poligono (Triangulo p1 p2 p3) = (posy p2 - posy p1) / (posx p2 - posx p1) /= (posy p3 - posy p2) / (posx p3 - posx p2) -- Verifica que os pontos não pertencem todos à mesma reta
-```
-
-## b) Defina a função `vertices :: Figura -> [Ponto]` que calcula a lista dos vertices de uma figura.
-
-```haskell
-vertices :: Figura -> [Ponto]
-vertices (Circulo _ _) = []
-vertices retang@(Retangulo p1 p2) = if poligono retang then [p1, Cartesiano (posx p1) (posy p2), Cartesiano (posx p2) (posy p1), p2] else []
-vertices triang@(Triangulo p1 p2 p3) = if poligono triang then [p1, p2, p3] else []
-```
-
-## c) Complete a seguinte definição cujo objectivo é calcular a área de uma figura:
-
-```
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- formula de Heron
-```
-
-```haskell
-area :: Figura -> Double
-area (Triangulo p1 p2 p3) =
-    let a = dist p1 p2
-        b = dist p2 p3
-        c = dist p3 p1
-        s = (a+b+c) / 2 -- semi-perimetro
-    in sqrt (s*(s-a)*(s-b)*(s-c)) -- fórmula de Heron
-area (Circulo _ r) = pi * (r ^ 2)
-area (Retangulo p1 p2) = abs (posx p2 - posx p1) * abs (posy p2 - posy p1) 
-```
-
-
-## d) Defina a função `perimetro :: Figura -> Double` que calcula o perímetro de uma figura.
-
-```haskell
-perimetro :: Figura -> Double
-perimetro (Circulo _ r) = 2 * pi * r
-perimetro (Retangulo p1 p2) = 2 * abs (posx p2 - posx p1) + 2 * abs (posy p2 - posy p1)
-perimetro (Triangulo p1 p2 p3) = dist p1 p2 + dist p2 p3 + dist p1 p3
-```
-
-
-# 8) Utilizando as funções `ord :: Char -> Int` e `chr :: Int -> Char` do módulo Data.Char, defina as seguintes funções (note que todas estas funções já estão também pré-definidas nesse módulo):
-
-## a) `isLower :: Char -> Bool`, que testa se um `Char` é uma minúscula.
-
-```haskell
-isLower :: Char -> Bool
-isLower ch = ord ch >= ord 'a' && ord ch <= ord 'z'
-
--- Pode ser simplificado para:
-
-isLower' :: Char -> Bool
-isLower' ch = ch `elem` ['a'..'z']
-```
-
-## b) `isDigit :: Char -> Bool`, que testa se um `Char` é um dígito.
-
-```haskell
-isDigit :: Char -> Bool
-isDigit d = ord ch >= ord '0' && ord ch <= ord '9'
-```
-
-## c) `isAlpha :: Char -> Bool`, que testa se um `Char` é uma letra.
-
-```haskell
-isAlpha :: Char -> Bool
-isAlpha ch = isLower ch || isUpper ch
-    where isUpper ch = ord ch >= ord 'A' && ord ch <= ord 'Z'
-```
-
-## d) `toUpper :: Char -> Char`, que converte uma letra para a respectiva maiúscula.
-
-```haskell
-toUpper :: Char -> Char
-toUpper ch = if isLower ch then chr (ord ch - 32) else ch
--- 32 é o resultado de `ord 'a' - ord 'A'`
-```
-
-## e) `intToDigit :: Int -> Char`, que converte um número entre 0 e 9 para o respetivo dígito.
-
-```haskell
-intToDigit :: Int -> Char
-intToDigit n = chr (n + 48)
--- 48 é o resultado de `ord '0' - 0`
-```
-
-## f) `digitToInt :: Char -> Int`, que converte um dígito para o respetivo inteiro.
-
-```haskell
-digitToInt :: Char -> Int 
-digitToInt ch = ord ch - 48
+aprovAv :: Turma -> Float
+aprovAv Empty = 0
+aprovAv turma = a / b
+    where (a,b) = aux turma
+          aux Empty = (0,0)
+          aux (Node (_,_,_,clas) l r) = case clas of Aprov nota -> (x+1,y) ; Rep -> (x,y+1) ; otherwise -> (x,y)
+            where (x,y) = (c+e,d+f)
+                  (c,d) = aux l
+                  (e,f) = aux r
 ```
