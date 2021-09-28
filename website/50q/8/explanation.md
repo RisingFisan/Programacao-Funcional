@@ -1,4 +1,4 @@
-Nesta função, temos de juntar duas listas numa lista de pares, de forma a que os 1ºs, 2ºs, 3ºs, etc. elementos fiquem emparelhados. Se as listas tiverem comprimentos diferentes, a lista final fica com o comprimento da mais curta.
+Nesta função, temos de juntar duas listas numa lista de pares, de forma a que os 1ºs, 2ºs, 3ºs, etc. elementos de cada fiquem emparelhados. Se as listas tiverem comprimentos diferentes, a lista final fica com o comprimento da mais curta.
 
 Como precisamos de percorrer as duas listas, iremos ter dois casos de paragem, um para cada lista.
 
