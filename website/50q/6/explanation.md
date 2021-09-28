@@ -1,4 +1,4 @@
-Esta questão é muito semelhante à [questão 4](/50q/4), mas nesta, em vez de devolver apenas o n-ésimo elemento, queremos devolver todos os elementos entre o início da lista e o n-ésimo elemento, exclusive.
+Esta questão é muito semelhante à [questão 4](../4), mas nesta, em vez de devolver apenas o n-ésimo elemento, queremos devolver todos os elementos entre o início da lista e o n-ésimo elemento, exclusive.
 
 Vamos pegar na função da questão 4 e mudar-lhe o nome e a ordem das variáveis:
 

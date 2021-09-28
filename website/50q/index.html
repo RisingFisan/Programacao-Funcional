@@ -4,7 +4,10 @@ layout: "default"
 ---
 
 <div class="flex flex-col items-center gap-12">
-  <h1 class="text-4xl">50 Questões</h1>
+  <div class="text-center space-y-3">
+    <h1 class="text-4xl">50 Questões</h1>
+    <h2 class="font-light">As explicações para cada questão assumem que as anteriores foram lidas, por isso recomendo começar pela primeira questão.</h2>
+  </div>
   <div class="bg-light-gray shadow-lg p-6 rounded-2xl">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-5">
       {% for i in (1..50) %}

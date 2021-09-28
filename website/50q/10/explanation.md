@@ -1,1 +1,1 @@
-Coming Soon™️
+Devido à sua similaridade com algumas questões anteriores, creio que esta questão dispensa de explicação. A questão [6](../6), em particular, é praticamente idêntica a esta.

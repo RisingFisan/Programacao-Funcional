@@ -3,9 +3,9 @@ group :: Eq a => [a] -> [[a]]
 group [] = []
 group [x] = [[x]]
 group (h:t)
-    | h == head hr = (h : hr) : tr 
-    | otherwise = [h] : hr : tr
-    where (hr:tr) = group t
+    | elem h (head r) = (h : (head r)) : tail r
+    | otherwise = [h] : r
+    where r = group t
 
 -- Versão com funções de ordem superior
 group' :: Eq a => [a] -> [[a]]
