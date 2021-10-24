@@ -125,7 +125,7 @@ min2hour min = (div min 60, mod min 60)
 
 ```haskell
 hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
+hourDiff h1 h2 = abs (hour2min h1 - hour2min h2)
 ``` 
 
 ## f) adicionar um determinado número de minutos a uma dada hora;
@@ -173,7 +173,7 @@ min2hour min = H (div min 60) (mod min 60)
 
 ```haskell
 hourDiff :: Hora -> Hora -> Int
-hourDiff h1 h2 = min2hour (abs (hour2min h1 - hour2min h2))
+hourDiff h1 h2 = abs (hour2min h1 - hour2min h2)
 ``` 
 
 ## f) adicionar um determinado número de minutos a uma dada hora;
