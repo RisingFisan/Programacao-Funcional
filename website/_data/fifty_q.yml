@@ -55,10 +55,10 @@ corresponde a nenhuma posição válida da lista)."
   description: "Defina a função `fun :: [(a,b,c)] -> [(a,c)]` que recebe uma lista de triplos e produz a lista de pares com o primeiro e o terceiro elemento de cada triplo."
 18:
   function: cola
-  description: "Defina a função `cola :: [(String,b,c)] -> String` que recebe uma lista de triplos e concatena as strings que estço na primeira componente dos triplos."
+  description: "Defina a função `cola :: [(String,b,c)] -> String` que recebe uma lista de triplos e concatena as strings que estão na primeira componente dos triplos."
 19:
   function: idade
-  description: "Defina a função `idade :: Int -> Int -> [(String,Int)] -> [String]` que recebe o ano, a idade e uma lista de pares com o nome e o ano de nascimento de cada pessoa, e devolve a listas de nomes das pessoas que nesse ano atingirço ou já ultrapassaram a idade indicada."
+  description: "Defina a função `idade :: Int -> Int -> [(String,Int)] -> [String]` que recebe o ano, a idade e uma lista de pares com o nome e o ano de nascimento de cada pessoa, e devolve a listas de nomes das pessoas que nesse ano atingirão ou já ultrapassaram a idade indicada."
 20:
   function: powerEnumFrom
   description: "Apresente uma definição recursiva da função `powerEnumFrom :: Int -> Int -> [Int]` que dado um valor n e um valor m constrói a lista [n^0,...,n^(m−1)]."
