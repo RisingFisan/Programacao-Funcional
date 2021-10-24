@@ -1,4 +1,6 @@
 ```haskell
-> insereMSet ’c’ [(’b’,2), (’a’,4), (’c’,1)]
-[(’b’,2),(’a’,4), (’c’,2)]
+> elemMSet ’a’ [(’b’,2), (’a’,4), (’c’,1)]
+True
+> elemMSet ’d’ [(’b’,2), (’a’,4), (’c’,1)]
+False
 ```

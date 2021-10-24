@@ -1,3 +1,4 @@
-tails :: [a] -> [[a]]
-tails [] = [[]]
-tails l = l : tails (tail l)
+heads :: [[a]] -> [a]
+heads [] = []
+heads ([]:t) = heads t -- é necessária esta condição pois `head []` dá erro
+heads (h:t) = head h : heads t

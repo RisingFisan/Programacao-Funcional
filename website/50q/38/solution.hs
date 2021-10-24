@@ -1,4 +1,4 @@
-converteMSet :: [(a,Int)] -> [a]
-converteMSet [] = []
-converteMSet ((x,1):xs) = x : converteMSet xs
-converteMSet ((x,n):xs) = x : converteMSet ((x,n-1) : xs)
+menor :: String -> String -> Bool
+menor _ "" = False
+menor "" _ = True
+menor (h:t) (h':t') = h < h' || menor t t'

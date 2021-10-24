@@ -2,7 +2,11 @@
 layout: default
 ---
 
-{% assign q = site.data.fifty_q[page.i] %}
+{% if page.year == 2018 %}
+  {% assign q = site.data.fifty_q_18[page.i] %}
+{% else %}
+  {% assign q = site.data.fifty_q[page.i] %}
+{% endif %}
 <div class="flex flex-col gap-12">
   <div class="flex justify-between flex-col md:flex-row items-center gap-8 md:items-start">
     <div class="md:w-2/3 xl:w-1/2 px-5 space-y-2 self-start">
@@ -16,16 +20,14 @@ layout: default
     <div class="flex gap-5">
       {% unless page.i == 1 %} 
         {% assign prev_page = page.i | minus: 1 %}
-        {% assign prev_page_url = prev_page | prepend: "/50q/" %}
-        <a href={{ prev_page_url | relative_url }} class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
+        <a href={{ prev_page | prepend: "../" }} class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
           <p class="text-2xl font-bold"><</p>
           <p>Anterior</p>
         </a>
       {% endunless %}
       {% unless page.i == 50 %} 
-      {% assign next_page = page.i | plus: 1 %}
-        {% assign next_page_url = next_page | prepend: "/50q/" %}
-        <a href={{ next_page_url | relative_url }} class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
+        {% assign next_page = page.i | plus: 1 %}
+        <a href={{ next_page | prepend: "../"  }} class="flex flex-col justify-center items-center w-24 h-24 rounded-full bg-purple-800 hover:bg-purple-600">
           <p class="text-2xl font-bold">></p>
           <p>Seguinte</p>
         </a>

@@ -1,4 +1,3 @@
-isSubsequenceOf :: Eq a => [a] -> [a] -> Bool
-isSubsequenceOf [] _ = True
-isSubsequenceOf _ [] = False
-isSubsequenceOf (h:t) (h':t') = h == h' && isSubsequenceOf t t' || isSubsequenceOf (h:t) t'
+cola :: [(String,b,c)] -> String
+cola [] = ""
+cola ((a,b,c):t) = a ++ cola t

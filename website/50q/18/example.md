@@ -1,6 +1,4 @@
 ```haskell
-> isSubsequenceOf [20,40] [10,20,30,40]
-True
-> isSubsequenceOf [40,20] [10,20,30,40]
-False
+> cola [("rui",3,2), ("maria",5,2), ("ana",43,7)]
+"ruimariaana"
 ```

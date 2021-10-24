@@ -1,4 +1,3 @@
-isSuffixOf :: Eq a => [a] -> [a] -> Bool
-isSuffixOf [] _ = True
-isSuffixOf _ [] = False
-isSuffixOf l l'@(_:t) = l == l' || isSuffixOf l t
+fun :: [(a,b,c)] -> [(a,c)]
+fun [] = []
+fun ((a,b,c):t) = (a,c) : fun t

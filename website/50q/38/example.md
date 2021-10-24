@@ -1,4 +1,6 @@
 ```haskell
-> converteMSet [(’b’,2), (’a’,4), (’c’,1)]
-"bbaaaac"
+> menor "sai" "saiu"
+True
+> menor "programacao" "funcional"
+False
 ```

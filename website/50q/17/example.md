@@ -1,6 +1,4 @@
 ```haskell
-> isSuffixOf [20,30] [10,20,30]
-True
-> isSuffixOf [10,30] [10,20,30]
-False
+> fun [("rui",3,2), ("maria",5,2), ("ana",43,7)]
+[("rui",2), ("maria",2), ("ana",7)]
 ```
