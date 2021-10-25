@@ -6,8 +6,8 @@ isPrime n
 
 primeCheck :: Int -> Int -> Bool
 primeCheck n m
-    | fromIntegral m > sqrt (fromIntegral n) = True
+    | m * m > n = True -- equivalente a: m > √n (assim trabalhamos apenas com valores inteiros)
     | mod n m == 0 = False
     | otherwise = primeCheck n (m + 1)
--- `primeCheck` percorre os números de 2 a `sqrt n` e verifica se algum destes divide n com resto 0.
+-- `primeCheck` percorre os números de 2 a √n e verifica se algum destes divide n com resto 0.
 -- Caso tal não se verifique para nenhum destes valores, n é primo.
