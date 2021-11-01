@@ -66,3 +66,12 @@ group :: Eq a => [a] -> [[a]]
 group [] = []
 group (h:t) = (h:takeWhile (== h) t) : group (dropWhile (== h) t)
 ```
+
+Esta última versão pode ser ainda mais simplificada se usarmos a função `span`, que junta as funções `takeWhile` e `dropWhile` numa só:
+
+```haskell
+group :: Eq a => [a] -> [[a]]
+group [] = []
+group (h:t) = (h:a) : group b
+    where (a,b) = span (== h) t
+```
