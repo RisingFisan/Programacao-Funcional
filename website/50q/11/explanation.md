@@ -57,7 +57,7 @@ insere x (h:t)
     | otherwise = [x] : (h : t)
 ```
 
-Esta definição é fundamente igual à primeira, mas não usa o `where`. Aqui, manipulamos o resultado da chamada recursiva na função auxiliar, em vez de o fazer na própria função. Esta versão poderá ser mais simples de entender para algumas pessoas.
+Esta definição é fundamentalmente igual à primeira, mas não usa o `where`. Aqui, manipulamos o resultado da chamada recursiva na função auxiliar, em vez de o fazer na própria função. Esta versão poderá ser mais simples de entender para algumas pessoas.
 
 Incluo ainda uma versão com funções de ordem superior, a mais simples das três, mas que poderá implicar um certo grau de conforto com este tipo de funções para entender.
 
