@@ -1,7 +1,6 @@
 isPrime :: Int -> Bool
-isPrime 2 = True
 isPrime n
-    | n > 2 = primeCheck n 2
+    | n >= 2 = primeCheck n 2
     | otherwise = False
 
 primeCheck :: Int -> Int -> Bool
