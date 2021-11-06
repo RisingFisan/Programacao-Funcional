@@ -118,27 +118,27 @@ corresponde a nenhuma posição válida da lista)."
   description: "Apresente uma definição recursiva da função `menor :: String -> String -> Bool` que dadas duas strings, retorna True se e só se a primeira for menor do que a segunda, segundo a ordem lexicográfica (i.e., do dicionário)"
 39:
   function: elemMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.<br>
 
 Defina a função `elemMSet :: Eq a => a -> [(a,Int)] -> Bool` que testa se um elemento pertence a um multi-conjunto."
 40:
   function: converteMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.<br>
 
 Defina a função `converteMSet :: [(a,Int)] -> [a]` que converte um multi-conjuto na lista dos seus elementos."
 41:
   function: insereMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.<br>
 
 Defina a função `insereMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]` que acrescenta um elemento a um multi-conjunto."
 42:
   function: removeMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.<br>
 
 Defina a função `removeMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]` que remove um elemento a um multi-conjunto. Se o elemento não existir, deve ser retornado o multi-conjunto recebido."
 43:
   function: constroiMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.<br>
 
 Defina a função `constroiMSet :: Ord a => [a] -> [(a,Int)]` dada uma lista ordenada por ordem crescente, calcula o multi-conjunto dos seus elementos."
 44:
@@ -149,42 +149,42 @@ Defina a função `constroiMSet :: Ord a => [a] -> [(a,Int)]` dada uma lista ord
   description: "Apresente uma definição recursiva da função pré-definida `catMaybes :: [Maybe a] -> [a]` que coleciona os elementos do tipo a de uma lista."
 46:
   function: caminho
-  description: "Considere o seguinte tipo para representar movimentos de um robot.
+  description: "Considere o seguinte tipo para representar movimentos de um robot.<br>
 
-`data Movimento = Norte | Sul | Este | Oeste`
-      `deriving Show`
+`data Movimento = Norte | Sul | Este | Oeste`<br>
+```     deriving Show```<br>
 
 Defina a função `caminho :: (Int,Int) -> (Int,Int) -> [Movimento]` que, dadas as posições inicial e final (coordenadas) do robot, produz uma lista de movimentos suficientes para que o robot passe de uma posição para a outra."
 47:
   function: hasLoops
-  description: "Considere o seguinte tipo para representar movimentos de um robot.
+  description: "Considere o seguinte tipo para representar movimentos de um robot.<br>
 
-`data Movimento = Norte | Sul | Este | Oeste`
-      `deriving Show`
+`data Movimento = Norte | Sul | Este | Oeste`<br>
+```     deriving Show```<br>
 
 Defina a função `hasLoops :: (Int,Int) -> [Movimento] -> Bool` que dada uma posição inicial e uma lista de movimentos (correspondentes a um percurso) verifica se o robot alguma vez volta a passar pela posição inicial ao longo do percurso correspondente. Pode usar a função `posicao` definida acima."
 48:
   function: contaQuadrados
-  description: "Considere os seguintes tipos para representar pontos e retângulos, respectivamente. Assuma que os retângulos têm os lados paralelos aos eixos e são representados apenas por dois dos pontos mais afastados.
+  description: "Considere os seguintes tipos para representar pontos e retângulos, respectivamente. Assuma que os retângulos têm os lados paralelos aos eixos e são representados apenas por dois dos pontos mais afastados.<br>
 
-`type Ponto = (Float,Float)`
-`data Rectangulo = Rect Ponto Ponto`
+`type Ponto = (Float,Float)`<br>
+`data Rectangulo = Rect Ponto Ponto`<br>
 
 Defina a função `contaQuadrados :: [Rectangulo] -> Int` que, dada uma lista com retângulos,
 conta quantos deles são quadrados."
 49:
   function: areaTotal
-  description: "Considere os seguintes tipos para representar pontos e retângulos, respectivamente. Assuma que os retângulos têm os lados paralelos aos eixos e são representados apenas por dois dos pontos mais afastados.
+  description: "Considere os seguintes tipos para representar pontos e retângulos, respectivamente. Assuma que os retângulos têm os lados paralelos aos eixos e são representados apenas por dois dos pontos mais afastados.<br>
 
-`type Ponto = (Float,Float)`
-`data Rectangulo = Rect Ponto Ponto`
+`type Ponto = (Float,Float)`<br>
+`data Rectangulo = Rect Ponto Ponto`<br>
 
 Defina a função `areaTotal :: [Rectangulo] -> Float` que, dada uma lista com retângulos, determina a área total que eles ocupam."
 50:
   function: naoReparar
-  description: "Considere o seguinte tipo para representar o estado de um equipamento.
+  description: "Considere o seguinte tipo para representar o estado de um equipamento.<br>
 
-`data Equipamento = Bom | Razoavel | Avariado`
-        `deriving Show`
+`data Equipamento = Bom | Razoavel | Avariado`<br>
+```     deriving Show```<br>
 
 Defina a função `naoReparar :: [Equipamento] -> Int` que determina a quantidade de equipamentos que não estão avariados"
