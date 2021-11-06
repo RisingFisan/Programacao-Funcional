@@ -118,32 +118,32 @@ corresponde a nenhuma posição válida da lista)."
   description: "Apresente uma definição recursiva da função `menor :: String -> String -> Bool` que dadas duas strings, retorna True se e só se a primeira for menor do que a segunda, segundo a ordem lexicográfica (i.e., do dicionário)"
 39:
   function: elemMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de a. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
 
 Defina a função `elemMSet :: Eq a => a -> [(a,Int)] -> Bool` que testa se um elemento pertence a um multi-conjunto."
 40:
   function: converteMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de a. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
 
 Defina a função `converteMSet :: [(a,Int)] -> [a]` que converte um multi-conjuto na lista dos seus elementos."
 41:
   function: insereMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de a. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
 
 Defina a função `insereMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]` que acrescenta um elemento a um multi-conjunto."
 42:
   function: removeMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de a. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
 
-Defina a função removeMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)] que remove um elemento a um multi-conjunto. Se o elemento não existir, deve ser retornado o multi-conjunto recebido."
+Defina a função `removeMSet :: Eq a => a -> [(a,Int)] -> [(a,Int)]` que remove um elemento a um multi-conjunto. Se o elemento não existir, deve ser retornado o multi-conjunto recebido."
 43:
   function: constroiMSet
-  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de a. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
+  description: "Considere que se usa o tipo `[(a,Int)]` para representar multi-conjuntos de elementos de `a`. Considere ainda que nestas listas não há pares cuja primeira componente coincida, nem cuja segunda componente seja menor ou igual a zero.
 
 Defina a função `constroiMSet :: Ord a => [a] -> [(a,Int)]` dada uma lista ordenada por ordem crescente, calcula o multi-conjunto dos seus elementos."
 44:
   function: partitionEithers
-  description: "Apresente uma definição recursiva da função pré-definida `partitionEithers :: [Either a b] -> ([a],[b])` que divide uma lista de Either s em duas listas."
+  description: "Apresente uma definição recursiva da função pré-definida `partitionEithers :: [Either a b] -> ([a],[b])` que divide uma lista de `Either` em duas listas."
 45:
   function: catMaybes
   description: "Apresente uma definição recursiva da função pré-definida `catMaybes :: [Maybe a] -> [a]` que coleciona os elementos do tipo a de uma lista."
